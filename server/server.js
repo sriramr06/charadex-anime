@@ -2,6 +2,7 @@ import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
 import connectDB from './config/db.js'
+import authRoutes from './routes/authRoutes.js'
 import { notFound, errorHandler } from './middleware/errorMiddleware.js'
 
 const app = express()
@@ -14,6 +15,8 @@ app.use(express.json())
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' })
 })
+
+app.use('/api/auth', authRoutes)
 
 // Error handling (must come after all routes)
 app.use(notFound)
