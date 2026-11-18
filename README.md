@@ -9,7 +9,8 @@ Creators build structured character profiles (artwork, personality, abilities wi
 - **Accounts:** two-step sign-up (email and password, then username), login with a basic JWT
 - **Characters:** create, edit, and delete your own characters with one artwork image each
 - **Abilities editor:** a list of abilities, each with its own named techniques
-- **Explore:** browse all characters with name search and pagination
+- **Tags:** add up to 10 free-form tags to each character
+- **Explore:** browse all characters with name search, tag filters, sorting, and pagination
 - **Social:** like characters, comment on them, and follow creators
 - **Creator pages:** public profile with avatar, bio, counts, and the creator's characters
 - **Profile:** edit display name, bio, and avatar
@@ -113,7 +114,7 @@ chardex/
 | --- | --- | --- |
 | `/` | Landing page | Logged-out visitors |
 | `/register`, `/login` | Sign up / log in | Logged-out visitors |
-| `/explore` | Browse and search characters | Everyone |
+| `/explore` | Browse, search, filter by tag, and sort characters | Everyone |
 | `/characters/:id` | Character detail, likes, comments | Everyone |
 | `/creators/:username` | Creator page with follow button | Everyone |
 | `/my-characters` | Your characters | Logged in |

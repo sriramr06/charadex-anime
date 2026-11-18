@@ -42,6 +42,16 @@
   font-size: var(--text-sm);
 }
 
+.character-card-tags {
+  margin-top: var(--space-2);
+}
+
+/* Smaller chips on cards */
+.character-card-tags .tag {
+  padding: 0 8px;
+  font-size: 0.75rem;
+}
+
 .character-card-creator {
   margin: var(--space-2) 0 0;
   font-size: var(--text-sm);

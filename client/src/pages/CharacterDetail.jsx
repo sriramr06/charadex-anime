@@ -11,6 +11,7 @@ import Avatar from '../components/Avatar'
 import StatusMessage from '../components/StatusMessage'
 import LikeButton from '../components/LikeButton'
 import CommentSection from '../components/CommentSection'
+import TagList from '../components/TagList'
 import './CharacterDetail.css'
 
 function CharacterDetail() {
@@ -133,6 +134,12 @@ function CharacterDetail() {
           )}
 
           {character.description && <p className="detail-description">{character.description}</p>}
+
+          {character.tags?.length > 0 && (
+            <div className="detail-tags">
+              <TagList tags={character.tags} linked />
+            </div>
+          )}
 
           {character.personality && (
             <section className="detail-section">

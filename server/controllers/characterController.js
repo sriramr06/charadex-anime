@@ -3,14 +3,25 @@ import Like from '../models/Like.js'
 import Comment from '../models/Comment.js'
 import escapeRegex from '../utils/escapeRegex.js'
 import getPagination from '../utils/pagination.js'
+import { normalizeTag, normalizeTags } from '../utils/tags.js'
 import { uploadImage, deleteImage } from '../config/cloudinary.js'
 
 // Public creator fields to include when populating
 const CREATOR_FIELDS = 'username displayName avatar'
 
+// Fields shown on character cards (Explore, My Characters, creator pages)
+const CARD_FIELDS = 'name description image tags creator createdAt'
+
 // Only these fields can be set by the client.
 // (creator comes from the logged-in user; image is handled by the upload feature)
-const EDITABLE_FIELDS = ['name', 'description', 'personality', 'abilities', 'backstory']
+const EDITABLE_FIELDS = ['name', 'description', 'personality', 'abilities', 'backstory', 'tags']
+
+// Explore sort options (_id breaks ties so pages never overlap)
+const SORTS = {
+  newest: { createdAt: -1, _id: -1 },
+  oldest: { createdAt: 1, _id: 1 },
+  name: { name: 1, _id: 1 },
+}
 
 const pickEditableFields = (body) => {
   const data = {}
@@ -19,7 +30,21 @@ const pickEditableFields = (body) => {
       data[field] = body[field]
     }
   })
+
+  // Tags must be a list; clean them before the schema checks the rules
+  if (Array.isArray(data.tags)) {
+    data.tags = normalizeTags(data.tags)
+  }
+
   return data
+}
+
+// Returns an error message for request data the schema can't explain well
+const checkRequestData = (data) => {
+  if (data.tags !== undefined && !Array.isArray(data.tags)) {
+    return 'Tags must be a list'
+  }
+  return ''
 }
 
 // Load a character and make sure the logged-in user owns it.
@@ -40,26 +65,39 @@ const findOwnedCharacter = async (req, res) => {
   return character
 }
 
-// @route   GET /api/characters?search=&page=&limit=
+// @route   GET /api/characters?search=&tag=&sort=&page=&limit=
 // @access  Public
 export const getCharacters = async (req, res) => {
   const { page, limit, skip } = getPagination(req.query)
 
   const filter = {}
-  const search = (req.query.search || '').trim()
+  const search = String(req.query.search || '').trim()
   if (search) {
     filter.name = { $regex: escapeRegex(search), $options: 'i' }
   }
 
-  const [characters, total] = await Promise.all([
-    Character.find(filter)
-      .select('name description image creator createdAt')
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .populate('creator', CREATOR_FIELDS),
-    Character.countDocuments(filter),
-  ])
+  // Exact tag match, using the same cleaning as when tags are saved
+  const tag = normalizeTag(req.query.tag || '')
+  if (tag) {
+    filter.tags = tag
+  }
+
+  // Unknown sort values fall back to newest
+  const sort = SORTS[req.query.sort] || SORTS.newest
+
+  let query = Character.find(filter)
+    .select(CARD_FIELDS)
+    .sort(sort)
+    .skip(skip)
+    .limit(limit)
+    .populate('creator', CREATOR_FIELDS)
+
+  // Sort names A–Z without caring about upper/lower case
+  if (sort === SORTS.name) {
+    query = query.collation({ locale: 'en', strength: 2 })
+  }
+
+  const [characters, total] = await Promise.all([query, Character.countDocuments(filter)])
 
   res.json({
     characters,
@@ -69,11 +107,26 @@ export const getCharacters = async (req, res) => {
   })
 }
 
+// @route   GET /api/characters/tags
+// @access  Public
+// The 20 most-used tags, for the filter chips on Explore
+export const getPopularTags = async (req, res) => {
+  // Aggregation pipeline: one row per tag -> count rows per tag -> top 20
+  const rows = await Character.aggregate([
+    { $unwind: '$tags' },
+    { $group: { _id: '$tags', count: { $sum: 1 } } },
+    { $sort: { count: -1, _id: 1 } },
+    { $limit: 20 },
+  ])
+
+  res.json({ tags: rows.map((row) => ({ tag: row._id, count: row.count })) })
+}
+
 // @route   GET /api/characters/mine
 // @access  Private
 export const getMyCharacters = async (req, res) => {
   const characters = await Character.find({ creator: req.user._id })
-    .select('name description image createdAt updatedAt')
+    .select('name description image tags createdAt updatedAt')
     .sort({ createdAt: -1 })
 
   res.json({ characters })
@@ -105,6 +158,11 @@ export const createCharacter = async (req, res) => {
     return res.status(400).json({ message: 'Character name is required' })
   }
 
+  const dataError = checkRequestData(data)
+  if (dataError) {
+    return res.status(400).json({ message: dataError })
+  }
+
   const character = await Character.create({
     ...data,
     creator: req.user._id, // always the logged-in user, never from the request body
@@ -123,6 +181,11 @@ export const updateCharacter = async (req, res) => {
 
   if (data.name !== undefined && !String(data.name).trim()) {
     return res.status(400).json({ message: 'Character name is required' })
+  }
+
+  const dataError = checkRequestData(data)
+  if (dataError) {
+    return res.status(400).json({ message: dataError })
   }
 
   // Copy the new values onto the document, then save (this runs schema validation)

@@ -1,9 +1,11 @@
 # CharaDex — Database Design
 
-**Version:** 1.1 | **Status:** Implemented (all five collections) | **Date:** November 2026
+**Version:** 1.2 | **Status:** Implemented (all five collections) | **Date:** November 2026
 
 **Related documents:** [Project Overview](project-overview-problem-statement.md) · [SRS](software-requirement-specifications.md) · [API Reference](api-reference.md)
 
+> **Changes in 1.2:** Added the Character `tags` field and index (FR-14), the Explore tag filter and sort options, and the popular-tags aggregation.
+>
 > **Changes in 1.1:** Updated to match the implemented code: model file locations (section 9), Cloudinary storage details (section 5.1), the extra data returned by detail and creator queries (section 6), and small behaviours such as the default display name.
 
 ---
@@ -23,7 +25,8 @@ These resolve the open decisions listed in SRS section 9.
 | Character visibility | **Public-only** (no drafts) | Keeps queries and permissions simple. A `status` field can be added later. |
 | Images per character | **One primary image** | Matches the SRS V1 rule. |
 | Image limits | **JPG, PNG, WEBP; max 2 MB** | Common formats; small enough for fast uploads. |
-| Character fields | Name, description, personality, abilities, backstory, image | Matches FR-04. No tags in MVP. |
+| Character fields | Name, description, personality, abilities, backstory, image, tags | Matches FR-04. Tags were added after the MVP for FR-14. |
+| Tags | **Free-form strings stored on the character** | Simple to filter with a multikey index; no separate Tag collection needed. |
 | Abilities format | **List of abilities, each with optional techniques** | Supports characters with several powers and named techniques. |
 | Likes and follows | **Separate collections** | Unique indexes prevent duplicates; demonstrates database relationships. |
 | Like counts | **Counted with `countDocuments()`** | No stored counter to keep in sync. |
@@ -166,6 +169,7 @@ Stores an original character profile. Every character belongs to exactly one cre
 | `personality` | String | No | Max 2,000 characters |
 | `abilities` | Array of Ability | No | Max 20 abilities (see below) |
 | `backstory` | String | No | Max 10,000 characters |
+| `tags` | Array of String | No | Max 10; each 2–30 characters (see Tag conventions below) |
 | `image.url` | String | No | Cloudinary secure URL |
 | `image.publicId` | String | No | Cloudinary public ID |
 | `creator` | ObjectId → `User` | Yes | Set by the server from the logged-in user, never from the request body |
@@ -192,12 +196,23 @@ Nesting stops at two levels (ability → technique). Deeper structures, such as 
 
 **Why embedded?** Abilities only belong to one character and are always shown with it, so they live inside the character document rather than in their own collection.
 
+#### Tag conventions (FR-14)
+
+Rules live in `server/utils/tags.js` (with a copy in `client/src/utils/tags.js` for instant form feedback):
+
+- Up to 10 tags per character, no duplicates.
+- Each tag is 2–30 characters: letters in any language, numbers, and single spaces or hyphens between words (pattern `^[\p{L}\p{N}]+(?:[ -][\p{L}\p{N}]+)*$`).
+- Before saving, the controller trims each tag, collapses repeated spaces, lowercases it, and removes empty tags and duplicates. `"  Sky   Pirate "` becomes `"sky pirate"`.
+- The schema then checks the count and pattern, so bad tags are rejected with a `400`.
+- `tags` must be sent as a list; a plain string is rejected.
+
 **Indexes:**
 
 | Index | Purpose |
 | --- | --- |
 | `{ creator: 1 }` | "My Characters" and creator pages |
 | `{ createdAt: -1 }` | Newest-first Explore listing |
+| `{ tags: 1 }` | Filtering Explore by tag (a multikey index: MongoDB indexes each tag in the array) |
 
 **Schema sketch:**
 
@@ -232,6 +247,13 @@ const characterSchema = new mongoose.Schema(
       validate: [(arr) => arr.length <= 20, 'Too many abilities'],
     },
     backstory: { type: String, maxlength: 10000 },
+    tags: {
+      type: [String],
+      validate: [
+        { validator: (arr) => arr.length <= 10, message: 'At most 10 tags' },
+        { validator: (arr) => arr.every(isValidTag), message: 'Invalid tag' },
+      ],
+    },
     image: {
       url: String,
       publicId: String,
@@ -247,11 +269,12 @@ const characterSchema = new mongoose.Schema(
 
 characterSchema.index({ creator: 1 });
 characterSchema.index({ createdAt: -1 });
+characterSchema.index({ tags: 1 });
 ```
 
 `_id: false` keeps abilities and techniques simple: when a character is edited, the whole `abilities` array is sent and replaced.
 
-Only `name`, `description`, `personality`, `abilities`, and `backstory` can be set from a request body. `creator` comes from the logged-in user and `image` is only changed through the image upload endpoints. Before saving, the React form trims text and drops completely empty ability and technique rows.
+Only `name`, `description`, `personality`, `abilities`, `backstory`, and `tags` can be set from a request body. `creator` comes from the logged-in user and `image` is only changed through the image upload endpoints. Before saving, the React form trims text and drops completely empty ability and technique rows.
 
 **Example document:**
 
@@ -278,6 +301,7 @@ Only `name`, `description`, `personality`, `abilities`, and `backstory` can be s
     }
   ],
   "backstory": "Raised in a mountain shrine, Kaede left to ...",
+  "tags": ["sky pirate", "swordswoman", "magic-user"],
   "image": {
     "url": "https://res.cloudinary.com/.../kaede.webp",
     "publicId": "charadex/characters/xyz789"
@@ -441,6 +465,9 @@ Files are kept in memory during upload (multer `memoryStorage`) and streamed str
 | Explore (paginated) | `Character.find().sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit).populate('creator', 'username displayName avatar')` |
 | Total for pagination | `Character.countDocuments(filter)` |
 | Search by name | `Character.find({ name: { $regex: escapedSearch, $options: 'i' } })` + same pagination |
+| Filter by tag (FR-14) | `Character.find({ tags: 'sky pirate' })`; combines with the name search in one filter object |
+| Sort (FR-14) | `newest` `{ createdAt: -1, _id: -1 }`, `oldest` `{ createdAt: 1, _id: 1 }`, `name` `{ name: 1, _id: 1 }` with `.collation({ locale: 'en', strength: 2 })` so A–Z ignores upper/lower case |
+| Popular tags (FR-14) | `Character.aggregate([{ $unwind: '$tags' }, { $group: { _id: '$tags', count: { $sum: 1 } } }, { $sort: { count: -1, _id: 1 } }, { $limit: 20 }])` |
 | Character detail | `Character.findById(id).populate('creator', 'username displayName avatar')`, plus `Like.countDocuments({ character })` and, when logged in, `Like.exists({ character, user })` |
 | My Characters | `Character.find({ creator: req.user.id }).select('name description image createdAt updatedAt').sort({ createdAt: -1 })` |
 | Creator page (P1) | `User.findOne({ username })`, plus three counts (followers, following, characters) and, when logged in, `Follow.exists({ follower, following })` |
@@ -451,7 +478,9 @@ Files are kept in memory during upload (multer `memoryStorage`) and streamed str
 
 - **Pagination:** default `limit` of 12, maximum 50 (shared helper in `server/utils/pagination.js`). Comments use a fixed 20 per page.
 - **Independent queries run together** with `Promise.all`, e.g. the page of results and the total count.
-- **Explore cards:** select only the fields a card needs (`name description image creator`) so responses stay small.
+- **Explore cards:** select only the fields a card needs (`name description image tags creator createdAt`) so responses stay small.
+- **Sort ties:** `_id` is added as a second sort key so items with the same date or name never appear on two pages.
+- **Indexes are created when the server starts.** If the database is wiped while the server is running, restart the server so the unique and tag indexes are rebuilt.
 - **Search input:** escape special regex characters in the user's search text before using it in `$regex`, so input like `(` or `*` doesn't break the query.
 - **Case-insensitive regex:** this doesn't use an index efficiently, but it is fine at the scale of this project.
 
@@ -470,6 +499,7 @@ Validation happens in two places:
 | File is a real image | Cloudinary rejects non-images; the controller turns this into a `400` |
 | Character name required | Controller (blank names) + schema |
 | Abilities and techniques need names; max 20 each | Schema (also checked by the React form) |
+| Tags: a list, max 10, each 2–30 valid characters | Controller (list check, cleanup) + schema (count, pattern); also checked by the tag input |
 | Comment text 1–500 characters | Controller (blank text) + schema |
 | Profile edit changes only display name and bio | Controller |
 | Only owner can edit/delete a character | Controller |
@@ -484,7 +514,7 @@ Mongoose validation errors, duplicate keys, invalid ids, upload errors, and bad 
 These are deliberately left out and can be added later without redesigning the existing collections:
 
 - **Drafts:** add `status: { type: String, enum: ['draft', 'public'], default: 'public' }` to Character.
-- **Tags / filters (P2):** add `tags: [String]` with an index on Character.
+- **More filters:** matching several tags at once (`{ tags: { $all: [...] } }`) or filtering by other character attributes.
 - **Extra profile fields:** e.g. `age`, `gender`, `species` on Character.
 - **Multiple images:** change `image` to `images: [{ url, publicId }]`.
 - **Stored like counts:** add a `likeCount` field if counting becomes slow.

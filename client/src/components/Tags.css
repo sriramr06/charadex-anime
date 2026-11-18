@@ -1,0 +1,104 @@
+/* ===== A single tag chip ===== */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 2px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background-color: var(--color-surface-2);
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  white-space: nowrap;
+}
+
+.tag-link {
+  text-decoration: none;
+}
+
+.tag-link:hover {
+  border-color: var(--color-primary);
+  color: var(--color-text);
+}
+
+.tag-more {
+  background: none;
+}
+
+/* ===== A row of tags ===== */
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* ===== Tag input (chips + text box in one field) ===== */
+.tag-input {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 42px;
+  padding: 5px var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-bg);
+}
+
+.tag-input:focus-within {
+  border-color: var(--color-primary);
+}
+
+/* Overrides the general .form-group input style */
+.form-group .tag-input input {
+  flex: 1;
+  min-width: 140px;
+  width: auto;
+  padding: 4px;
+  border: none;
+  background: none;
+}
+
+.form-group .tag-input input:focus-visible {
+  outline: none; /* the whole box shows focus instead */
+}
+
+.tag-removable {
+  padding-right: 4px;
+  color: var(--color-text);
+}
+
+.tag-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  color: var(--color-muted);
+  cursor: pointer;
+}
+
+.tag-remove:hover {
+  color: var(--color-error);
+}
+
+.tag-remove:focus-visible {
+  outline: 2px solid var(--color-focus);
+}
+
+.tag-remove svg {
+  width: 14px;
+  height: 14px;
+}
+
+.tag-error {
+  color: var(--color-error);
+}

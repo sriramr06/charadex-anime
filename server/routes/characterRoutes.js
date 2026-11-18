@@ -2,6 +2,7 @@ import express from 'express'
 import {
   getCharacters,
   getMyCharacters,
+  getPopularTags,
   getCharacterById,
   createCharacter,
   updateCharacter,
@@ -19,8 +20,9 @@ const router = express.Router()
 router.get('/', getCharacters)
 router.post('/', protect, createCharacter)
 
-// "/mine" must come before "/:id", otherwise "mine" would be treated as an id
+// "/mine" and "/tags" must come before "/:id", otherwise they would be treated as ids
 router.get('/mine', protect, getMyCharacters)
+router.get('/tags', getPopularTags)
 
 router.get('/:id', optionalAuth, getCharacterById)
 router.put('/:id', protect, updateCharacter)

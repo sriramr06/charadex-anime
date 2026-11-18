@@ -73,6 +73,10 @@
   font-size: var(--text-lg);
 }
 
+.detail-tags {
+  margin-bottom: var(--space-5);
+}
+
 .detail-section {
   padding: var(--space-5) 0;
   border-top: 1px solid var(--color-border);

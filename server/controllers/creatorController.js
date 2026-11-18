@@ -57,7 +57,7 @@ export const getCreatorCharacters = async (req, res) => {
 
   const [characters, total] = await Promise.all([
     Character.find(filter)
-      .select('name description image createdAt')
+      .select('name description image tags createdAt')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit),

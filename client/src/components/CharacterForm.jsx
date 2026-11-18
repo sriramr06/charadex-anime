@@ -9,6 +9,7 @@ import {
 } from '../api/characters'
 import ImagePicker from './ImagePicker'
 import AbilitiesEditor from './AbilitiesEditor'
+import TagInput from './TagInput'
 import './CharacterForm.css'
 
 // Make sure every ability/technique has all fields (older data may not)
@@ -47,6 +48,7 @@ function CharacterForm({ character, initialError = '' }) {
     backstory: character?.backstory || '',
   })
   const [abilities, setAbilities] = useState(normalizeAbilities(character?.abilities))
+  const [tags, setTags] = useState(character?.tags || [])
   const [imageFile, setImageFile] = useState(null)
   const [imageRemoved, setImageRemoved] = useState(false)
   const [error, setError] = useState(initialError)
@@ -94,6 +96,7 @@ function CharacterForm({ character, initialError = '' }) {
       personality: fields.personality.trim(),
       backstory: fields.backstory.trim(),
       abilities: cleanedAbilities,
+      tags,
     }
 
     setSaving(true)
@@ -185,6 +188,8 @@ function CharacterForm({ character, initialError = '' }) {
                 {fields.description.length}/300
               </small>
             </div>
+
+            <TagInput tags={tags} onChange={setTags} />
           </section>
 
           <section className="form-section card">

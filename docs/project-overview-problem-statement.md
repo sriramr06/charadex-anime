@@ -1,6 +1,6 @@
 # CharaDex — Project Overview & Problem Statement
 
-> **Status (November 2026):** The MVP (section 6.1) is implemented, as is the planned extension (section 6.2) except basic discovery filters (FR-14), which are not started. See the [SRS implementation status](software-requirement-specifications.md#11-implementation-status) for details.
+> **Status (November 2026):** The MVP (section 6.1) and the planned extension (section 6.2), including basic discovery filters by tag, are implemented. See the [SRS implementation status](software-requirement-specifications.md#11-implementation-status) for details.
 
 ## 1. Project Overview
 

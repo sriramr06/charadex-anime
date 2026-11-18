@@ -1,6 +1,8 @@
 # CharaDex — API Reference
 
-**Version:** 1.0 | **Status:** Matches the implemented server | **Date:** November 2026
+**Version:** 1.1 | **Status:** Matches the implemented server | **Date:** November 2026
+
+> **Changes in 1.1:** Character `tags` (FR-14), `tag` and `sort` options on `GET /characters`, and the new `GET /characters/tags` endpoint.
 
 **Related documents:** [SRS](software-requirement-specifications.md) · [Database Design](database-design.md)
 
@@ -140,15 +142,29 @@ Explore page. Newest first.
 | Query | Meaning |
 | --- | --- |
 | `search` | Case-insensitive match on character name (special characters are treated as plain text) |
+| `tag` | Only characters with this exact tag. Cleaned the same way as saved tags, so `?tag=Sky%20Pirate` matches `sky pirate`. |
+| `sort` | `newest` (default), `oldest`, or `name` (A–Z, ignoring upper/lower case). Unknown values fall back to `newest`. |
 | `page`, `limit` | Pagination |
 
-**Response `200`:** paginated `characters`. Each item has only `name`, `description`, `image`, `creator` (public user), and `createdAt`.
+`search` and `tag` can be combined, e.g. `/characters?search=kai&tag=villain&sort=name`.
+
+**Response `200`:** paginated `characters`. Each item has only `name`, `description`, `image`, `tags`, `creator` (public user), and `createdAt`.
+
+### GET `/characters/tags` — Public
+
+The 20 most-used tags across all characters, most used first (ties in A–Z order). Used for the filter chips on Explore.
+
+**Response `200`:**
+
+```json
+{ "tags": [ { "tag": "magic-user", "count": 3 }, { "tag": "villain", "count": 2 } ] }
+```
 
 ### GET `/characters/mine` — Private
 
 The logged-in user's characters, newest first, not paginated.
 
-**Response `200`:** `{ "characters": [ { name, description, image, createdAt, updatedAt } ] }`.
+**Response `200`:** `{ "characters": [ { name, description, image, tags, createdAt, updatedAt } ] }`.
 
 ### GET `/characters/:id` — Optional
 
@@ -165,6 +181,7 @@ The logged-in user's characters, newest first, not paginated.
       { "name": "Hanagiri", "description": "...", "techniques": [ { "name": "Scatter", "description": "..." } ] }
     ],
     "backstory": "...",
+    "tags": ["sky pirate", "swordswoman"],
     "image": { "url": "...", "publicId": "..." },
     "creator": { "_id": "...", "username": "inkfox", "displayName": "Ink Fox", "avatar": {} },
     "createdAt": "...",
@@ -185,19 +202,22 @@ The logged-in user's characters, newest first, not paginated.
   "description": "Optional, max 300",
   "personality": "Optional, max 2000",
   "backstory": "Optional, max 10000",
+  "tags": ["Optional", "max 10"],
   "abilities": [
     { "name": "Required, max 80", "description": "Optional, max 1000", "techniques": [ { "name": "Required, max 80", "description": "Optional" } ] }
   ]
 }
 ```
 
-Only these five fields are read. `creator` is always the logged-in user; `creator` and `image` in the body are ignored. Name required and at most 60 characters; at most 20 abilities and 20 techniques per ability.
+Only these six fields are read. `creator` is always the logged-in user; `creator` and `image` in the body are ignored. Name required and at most 60 characters; at most 20 abilities and 20 techniques per ability.
+
+**Tags:** must be a list (a plain string → `400 "Tags must be a list"`). Each tag is trimmed, lowercased, and has repeated spaces collapsed; empty tags and duplicates are dropped. Then at most 10 tags, each 2–30 characters of letters (any language), numbers, and single spaces or hyphens between words; otherwise `400`.
 
 **Response `201`:** `{ "character": Character }`.
 
 ### PUT `/characters/:id` — Owner
 
-Partial update: only the fields sent are changed. Sending `abilities` replaces the whole list. Same rules as create; a blank `name` → `400`.
+Partial update: only the fields sent are changed. Sending `abilities` or `tags` replaces the whole list. Same rules as create; a blank `name` → `400`.
 
 **Response `200`:** `{ "character": Character }`.
 
@@ -316,7 +336,7 @@ No avatar → `400`. **Response `200`:** `{ "user": User }`.
 
 The creator's characters, newest first. Supports `page` and `limit`.
 
-**Response `200`:** paginated `characters` (`name`, `description`, `image`, `createdAt`).
+**Response `200`:** paginated `characters` (`name`, `description`, `image`, `tags`, `createdAt`).
 
 ### POST `/users/:username/follow` — Private
 
@@ -341,6 +361,7 @@ Safe to repeat. **Response `200`:** `{ "following": false, "followerCount": 1 }`
 | GET | `/auth/me` | Private |
 | GET | `/characters` | Public |
 | GET | `/characters/mine` | Private |
+| GET | `/characters/tags` | Public |
 | GET | `/characters/:id` | Optional |
 | POST | `/characters` | Private |
 | PUT | `/characters/:id` | Owner |

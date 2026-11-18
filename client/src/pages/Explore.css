@@ -1,8 +1,18 @@
+/* Search on the left, sort on the right */
+.explore-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
 .search-bar {
   display: flex;
   flex-wrap: wrap;
+  flex: 1;
   gap: var(--space-2);
-  margin-bottom: var(--space-4);
 }
 
 .search-input {
@@ -11,8 +21,8 @@
   max-width: 560px;
 }
 
-.search-input input {
-  width: 100%;
+.search-input input,
+.sort-control select {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   font: inherit;
@@ -20,11 +30,76 @@
   background-color: var(--color-surface);
 }
 
-.search-input input:focus {
+.search-input input {
+  width: 100%;
+}
+
+.search-input input:focus,
+.sort-control select:focus {
   border-color: var(--color-primary);
+}
+
+.sort-control {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+}
+
+.sort-control select {
+  height: 42px;
+  padding: 0 var(--space-3);
+  font-size: var(--text-sm);
+}
+
+/* Row of tag chips you can click to filter */
+.tag-filter {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+
+.tag-filter-label {
+  padding-top: 3px;
+  font-size: var(--text-sm);
+}
+
+.tag-button {
+  font: inherit;
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+
+.tag-button:hover {
+  border-color: var(--color-primary);
+  color: var(--color-text);
+}
+
+.tag-button.active {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.tag-button svg {
+  width: 13px;
+  height: 13px;
+}
+
+.tag-button:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
 }
 
 .result-count {
   margin-bottom: var(--space-4);
   font-size: var(--text-sm);
+}
+
+@media (max-width: 600px) {
+  .tag-filter {
+    flex-direction: column;
+    gap: var(--space-2);
+  }
 }

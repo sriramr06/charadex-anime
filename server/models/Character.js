@@ -1,4 +1,5 @@
 import mongoose from 'mongoose'
+import { MAX_TAGS, isValidTag } from '../utils/tags.js'
 
 // A named technique inside an ability (e.g. a special move or form)
 const techniqueSchema = new mongoose.Schema(
@@ -63,6 +64,20 @@ const characterSchema = new mongoose.Schema(
       type: String,
       maxlength: [10000, 'Backstory must be at most 10000 characters'],
     },
+    // Free-form tags, e.g. ["swordswoman", "sky pirate"] (see utils/tags.js)
+    tags: {
+      type: [String],
+      validate: [
+        {
+          validator: (arr) => arr.length <= MAX_TAGS,
+          message: `A character can have at most ${MAX_TAGS} tags`,
+        },
+        {
+          validator: (arr) => arr.every(isValidTag),
+          message: 'Tags must be 2–30 characters: letters, numbers, spaces, or hyphens',
+        },
+      ],
+    },
     image: {
       url: String,
       publicId: String,
@@ -78,6 +93,8 @@ const characterSchema = new mongoose.Schema(
 
 characterSchema.index({ creator: 1 })
 characterSchema.index({ createdAt: -1 })
+// Filtering Explore by tag (MongoDB indexes each tag in the array)
+characterSchema.index({ tags: 1 })
 
 const Character = mongoose.model('Character', characterSchema)
 
