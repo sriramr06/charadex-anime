@@ -1,6 +1,6 @@
 # CharaDex — API Reference
 
-**Version:** 1.3 | **Status:** Matches the implemented server | **Date:**  May 2026
+**Version:** 1.3 | **Status:** Matches the implemented server | **Date:** May 2026
 
 > **Changes in 1.3:** New `GET /users/:username/followers` and `/following` endpoints.
 >
