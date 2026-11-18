@@ -1,7 +1,9 @@
 # CharaDex — API Reference
 
-**Version:** 1.1 | **Status:** Matches the implemented server | **Date:** November 2026
+**Version:** 1.2 | **Status:** Matches the implemented server | **Date:** November 2026
 
+> **Changes in 1.2:** Character list endpoints (`/characters`, `/characters/mine`, `/users/:username/characters`) now include `likeCount` on each item.
+>
 > **Changes in 1.1:** Character `tags` (FR-14), `tag` and `sort` options on `GET /characters`, and the new `GET /characters/tags` endpoint.
 
 **Related documents:** [SRS](software-requirement-specifications.md) · [Database Design](database-design.md)
@@ -148,7 +150,7 @@ Explore page. Newest first.
 
 `search` and `tag` can be combined, e.g. `/characters?search=kai&tag=villain&sort=name`.
 
-**Response `200`:** paginated `characters`. Each item has only `name`, `description`, `image`, `tags`, `creator` (public user), and `createdAt`.
+**Response `200`:** paginated `characters`. Each item has only `name`, `description`, `image`, `tags`, `creator` (public user), `createdAt`, and `likeCount`.
 
 ### GET `/characters/tags` — Public
 
@@ -164,7 +166,7 @@ The 20 most-used tags across all characters, most used first (ties in A–Z orde
 
 The logged-in user's characters, newest first, not paginated.
 
-**Response `200`:** `{ "characters": [ { name, description, image, tags, createdAt, updatedAt } ] }`.
+**Response `200`:** `{ "characters": [ { name, description, image, tags, createdAt, updatedAt, likeCount } ] }`.
 
 ### GET `/characters/:id` — Optional
 
@@ -336,7 +338,7 @@ No avatar → `400`. **Response `200`:** `{ "user": User }`.
 
 The creator's characters, newest first. Supports `page` and `limit`.
 
-**Response `200`:** paginated `characters` (`name`, `description`, `image`, `tags`, `createdAt`).
+**Response `200`:** paginated `characters` (`name`, `description`, `image`, `tags`, `createdAt`, `likeCount`).
 
 ### POST `/users/:username/follow` — Private
 

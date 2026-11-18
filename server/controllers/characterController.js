@@ -3,6 +3,7 @@ import Like from '../models/Like.js'
 import Comment from '../models/Comment.js'
 import escapeRegex from '../utils/escapeRegex.js'
 import getPagination from '../utils/pagination.js'
+import addLikeCounts from '../utils/likeCounts.js'
 import { normalizeTag, normalizeTags } from '../utils/tags.js'
 import { uploadImage, deleteImage } from '../config/cloudinary.js'
 
@@ -91,13 +92,15 @@ export const getCharacters = async (req, res) => {
     .skip(skip)
     .limit(limit)
     .populate('creator', CREATOR_FIELDS)
+    .lean() // plain objects, so we can add likeCount
 
   // Sort names A–Z without caring about upper/lower case
   if (sort === SORTS.name) {
     query = query.collation({ locale: 'en', strength: 2 })
   }
 
-  const [characters, total] = await Promise.all([query, Character.countDocuments(filter)])
+  const [found, total] = await Promise.all([query, Character.countDocuments(filter)])
+  const characters = await addLikeCounts(found)
 
   res.json({
     characters,
@@ -125,9 +128,12 @@ export const getPopularTags = async (req, res) => {
 // @route   GET /api/characters/mine
 // @access  Private
 export const getMyCharacters = async (req, res) => {
-  const characters = await Character.find({ creator: req.user._id })
+  const found = await Character.find({ creator: req.user._id })
     .select('name description image tags createdAt updatedAt')
     .sort({ createdAt: -1 })
+    .lean()
+
+  const characters = await addLikeCounts(found)
 
   res.json({ characters })
 }

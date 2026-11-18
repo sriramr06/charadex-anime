@@ -71,7 +71,7 @@ Priority levels: **P0** = MVP, **P1** = post-MVP social features, **P2** = possi
 | FR-07 | P0 | Edit/delete | Only a character owner can update or delete their character; unauthorized requests are rejected. |
 | FR-08 | P0 | Explore/search | Anyone can browse public characters in paginated results and search by character name. |
 | FR-09 | P0 | My characters | Authenticated users can list and manage characters they created. |
-| FR-10 | P1 | Likes | An authenticated user can like/unlike a public character; each user has at most one active like per character. |
+| FR-10 | P1 | Likes | An authenticated user can like/unlike a public character; each user has at most one active like per character. Like counts are shown on the character page and on every character card. |
 | FR-11 | P1 | Comments | An authenticated user can post comments (1–500 characters) on public characters; authors can delete their own comments. Comments cannot be edited, and character owners cannot delete other users' comments in V1. |
 | FR-12 | P1 | Follow creators | An authenticated user can follow/unfollow another creator but cannot follow themselves. |
 | FR-13 | P1 | Creator page | Anyone can view a creator profile (avatar, name, bio, character/follower/following counts) and their public characters. |
@@ -192,7 +192,6 @@ The open decisions from version 1.0 were resolved as follows:
 
 - No password reset, email verification, or account deletion.
 - Username and email cannot be changed after registration.
-- Explore cards do not show like counts (likes appear on the character detail page).
 - No list pages for "followers" or "following"; only the counts are shown.
 - Name search uses a case-insensitive regular expression, which is fine for a small project but not suited to very large data sets.
 - Explore filters by one tag at a time; there is no "match several tags" option and no filtering by other character attributes.

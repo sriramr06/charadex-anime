@@ -23,7 +23,11 @@
   border-radius: var(--radius-sm);
 }
 
+/* Fills the rest of the card so the footer can sit at the bottom */
 .character-card-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
   padding: var(--space-3) var(--space-2) var(--space-2);
 }
 
@@ -52,9 +56,35 @@
   font-size: 0.75rem;
 }
 
-.character-card-creator {
-  margin: var(--space-2) 0 0;
+/* Creator on the left, likes on the right, pushed to the bottom of the card
+   so footers line up across a row */
+.character-card-footer {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: auto;
+  padding-top: var(--space-2);
   font-size: var(--text-sm);
+}
+
+.character-card-footer > span:first-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.character-card-likes {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.character-card-likes svg {
+  width: 14px;
+  height: 14px;
 }
 
 @media (max-width: 480px) {

@@ -467,6 +467,7 @@ Files are kept in memory during upload (multer `memoryStorage`) and streamed str
 | Search by name | `Character.find({ name: { $regex: escapedSearch, $options: 'i' } })` + same pagination |
 | Filter by tag (FR-14) | `Character.find({ tags: 'sky pirate' })`; combines with the name search in one filter object |
 | Sort (FR-14) | `newest` `{ createdAt: -1, _id: -1 }`, `oldest` `{ createdAt: 1, _id: 1 }`, `name` `{ name: 1, _id: 1 }` with `.collation({ locale: 'en', strength: 2 })` so A–Z ignores upper/lower case |
+| Like counts for a page of cards | After the page is loaded (with `.lean()`): `Like.aggregate([{ $match: { character: { $in: pageIds } } }, { $group: { _id: '$character', count: { $sum: 1 } } }])` — one query per page, not one per card (`server/utils/likeCounts.js`) |
 | Popular tags (FR-14) | `Character.aggregate([{ $unwind: '$tags' }, { $group: { _id: '$tags', count: { $sum: 1 } } }, { $sort: { count: -1, _id: 1 } }, { $limit: 20 }])` |
 | Character detail | `Character.findById(id).populate('creator', 'username displayName avatar')`, plus `Like.countDocuments({ character })` and, when logged in, `Like.exists({ character, user })` |
 | My Characters | `Character.find({ creator: req.user.id }).select('name description image createdAt updatedAt').sort({ createdAt: -1 })` |
@@ -518,7 +519,6 @@ These are deliberately left out and can be added later without redesigning the e
 - **Extra profile fields:** e.g. `age`, `gender`, `species` on Character.
 - **Multiple images:** change `image` to `images: [{ url, publicId }]`.
 - **Stored like counts:** add a `likeCount` field if counting becomes slow.
-- **Like counts on cards:** Explore cards do not show likes yet; this would need counts for many characters at once (an aggregation or a stored counter).
 - **Account deletion:** would need cleanup of the user's characters (and their images, likes, comments), the user's own likes, comments, follows, and avatar.
 
 ## 9. Implementation Files

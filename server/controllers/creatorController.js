@@ -2,6 +2,7 @@ import User from '../models/User.js'
 import Character from '../models/Character.js'
 import Follow from '../models/Follow.js'
 import getPagination from '../utils/pagination.js'
+import addLikeCounts from '../utils/likeCounts.js'
 
 // Public creator pages and following.
 // Creators are looked up by username, e.g. /api/users/inkfox
@@ -55,14 +56,16 @@ export const getCreatorCharacters = async (req, res) => {
   const { page, limit, skip } = getPagination(req.query)
   const filter = { creator: creator._id }
 
-  const [characters, total] = await Promise.all([
+  const [found, total] = await Promise.all([
     Character.find(filter)
       .select('name description image tags createdAt')
       .sort({ createdAt: -1 })
       .skip(skip)
-      .limit(limit),
+      .limit(limit)
+      .lean(),
     Character.countDocuments(filter),
   ])
+  const characters = await addLikeCounts(found)
 
   res.json({ characters, page, totalPages: Math.ceil(total / limit), total })
 }
