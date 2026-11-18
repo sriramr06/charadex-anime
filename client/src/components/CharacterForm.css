@@ -1,0 +1,70 @@
+/* Artwork column on the left, form sections on the right (same as detail page) */
+.character-form-layout {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  gap: var(--space-6);
+  align-items: start;
+}
+
+/* Artwork stays visible while scrolling the long form */
+.character-form-media {
+  position: sticky;
+  top: 84px;
+}
+
+.form-section {
+  margin-bottom: var(--space-4);
+  padding: var(--space-5);
+}
+
+.form-section h2 {
+  margin-bottom: var(--space-4);
+  font-size: var(--text-lg);
+}
+
+/* Section titles that double as labels for a single textarea */
+.form-section h2 label {
+  font-weight: inherit;
+}
+
+.form-section > textarea {
+  width: 100%;
+  padding: 10px var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font: inherit;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  resize: vertical;
+}
+
+.form-section > textarea:focus {
+  border-color: var(--color-primary);
+}
+
+.form-section .form-group:last-child {
+  margin-bottom: 0;
+}
+
+.required {
+  color: var(--color-error);
+}
+
+.character-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  padding-top: var(--space-2);
+}
+
+@media (max-width: 860px) {
+  .character-form-layout {
+    grid-template-columns: 1fr;
+    gap: var(--space-5);
+  }
+
+  .character-form-media {
+    position: static;
+    max-width: 280px;
+  }
+}

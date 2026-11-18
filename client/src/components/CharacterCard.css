@@ -1,0 +1,55 @@
+/* Grid of cards that fills the full width */
+.character-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: var(--space-4);
+}
+
+.character-card {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-2);
+  color: var(--color-text);
+  text-decoration: none;
+  transition: border-color 0.15s;
+}
+
+.character-card:hover {
+  border-color: var(--color-primary);
+  color: var(--color-text);
+}
+
+.character-card .character-image {
+  border-radius: var(--radius-sm);
+}
+
+.character-card-body {
+  padding: var(--space-3) var(--space-2) var(--space-2);
+}
+
+.character-card-name {
+  margin: 0;
+  font-size: var(--text-base);
+}
+
+/* Show at most 2 lines of the description */
+.character-card-description {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-sm);
+}
+
+.character-card-creator {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-sm);
+}
+
+@media (max-width: 480px) {
+  .character-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
+  }
+}

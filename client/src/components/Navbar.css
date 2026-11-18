@@ -1,34 +1,101 @@
 .navbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
   background-color: var(--color-surface);
   border-bottom: 1px solid var(--color-border);
 }
 
-/* Logo on the left, user and logout on the right */
 .navbar-inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
-  padding: var(--space-3) var(--page-padding);
+  height: 60px;
+  padding: 0 var(--page-padding);
 }
 
+.navbar-left,
+.navbar-right,
 .navbar-links {
   display: flex;
   align-items: center;
-  gap: var(--space-4);
+}
+
+.navbar-left {
+  gap: var(--space-6);
+}
+
+.navbar-links {
+  gap: var(--space-1);
+}
+
+.navbar-right {
+  gap: var(--space-3);
+}
+
+.navbar-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  color: var(--color-muted);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.navbar-link svg {
+  width: 18px;
+  height: 18px;
+}
+
+.navbar-link:hover {
+  color: var(--color-text);
+}
+
+/* Current page */
+.navbar-link.active {
+  color: var(--color-text);
+  background-color: var(--color-surface-2);
 }
 
 .navbar-user {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  color: var(--color-muted);
   font-size: var(--text-sm);
+  color: var(--color-muted);
 }
 
-/* On very small screens, hide the name to save space */
-@media (max-width: 420px) {
-  .navbar-user {
-    display: none;
+.navbar-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--color-surface-2);
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+/* Small screens: icons only (text stays available to screen readers) */
+@media (max-width: 720px) {
+  .navbar-left {
+    gap: var(--space-3);
+  }
+
+  .navbar-right {
+    gap: var(--space-2);
+  }
+
+  .nav-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
   }
 }

@@ -101,7 +101,7 @@ function Register() {
     setSubmitting(true)
     try {
       await register(formData.username, formData.email, formData.password)
-      navigate('/home')
+      navigate('/my-characters')
     } catch (err) {
       setError(getErrorMessage(err))
       setSubmitting(false)

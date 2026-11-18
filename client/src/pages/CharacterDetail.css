@@ -1,0 +1,127 @@
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-5);
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+  text-decoration: none;
+}
+
+.back-link:hover {
+  color: var(--color-text);
+}
+
+/* Artwork on the left, information on the right */
+.detail-layout {
+  display: grid;
+  grid-template-columns: 340px minmax(0, 1fr);
+  gap: var(--space-7);
+  align-items: start;
+}
+
+/* Artwork stays in view while reading */
+.detail-media {
+  position: sticky;
+  top: 84px;
+}
+
+.detail-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.detail-header h1 {
+  margin: 0;
+  font-size: var(--text-2xl);
+}
+
+.detail-meta {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-sm);
+}
+
+.detail-actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.detail-description {
+  max-width: 70ch;
+  font-size: var(--text-lg);
+}
+
+.detail-section {
+  padding: var(--space-5) 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.detail-section h2 {
+  margin-bottom: var(--space-3);
+  font-size: var(--text-lg);
+}
+
+/* Keep the line breaks the creator typed */
+.detail-text {
+  max-width: 75ch;
+  margin: 0;
+  white-space: pre-line;
+}
+
+.ability-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-3);
+}
+
+.ability {
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background-color: var(--color-surface);
+}
+
+.ability h3 {
+  margin-bottom: var(--space-1);
+  font-size: var(--text-base);
+}
+
+.technique-list {
+  margin: var(--space-3) 0 0;
+  padding-left: var(--space-5);
+}
+
+.technique-list li {
+  margin-bottom: var(--space-1);
+}
+
+.technique-name {
+  font-weight: 600;
+}
+
+.detail-empty {
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--color-border);
+}
+
+@media (max-width: 860px) {
+  .detail-layout {
+    grid-template-columns: 1fr;
+    gap: var(--space-5);
+  }
+
+  .detail-media {
+    position: static;
+    max-width: 320px;
+  }
+
+  .detail-header h1 {
+    font-size: var(--text-xl);
+  }
+}

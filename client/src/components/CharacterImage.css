@@ -1,0 +1,21 @@
+/* Portrait frame (4:5) used everywhere a character image appears */
+.character-image {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  border-radius: var(--radius);
+  background-color: var(--color-surface-2);
+}
+
+.character-image-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-muted);
+}
+
+.character-image-placeholder span {
+  font-size: 3rem;
+  font-weight: 700;
+  opacity: 0.6;
+}

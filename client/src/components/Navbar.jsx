@@ -1,27 +1,80 @@
-import { Link } from 'react-router-dom'
-import { FiLogOut, FiUser } from 'react-icons/fi'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
+import { FiCompass, FiGrid, FiPlus, FiLogOut, FiLogIn } from 'react-icons/fi'
 import { useAuth } from '../context/authContext'
 import './Navbar.css'
 
+// Top bar for all app pages.
+// Left: logo + main links. Right: "New character" + user, or log in / sign up.
+// On small screens the link text is hidden and only icons show.
 function Navbar() {
   const { user, logout } = useAuth()
+  const navigate = useNavigate()
+
+  const handleLogout = () => {
+    logout()
+    navigate('/')
+  }
+
+  const name = user ? user.displayName || user.username : ''
 
   return (
     <header className="navbar">
       <nav className="navbar-inner" aria-label="Main">
-        <Link to="/home" className="brand">
-          Chara<span>Dex</span>
-        </Link>
+        <div className="navbar-left">
+          <Link to={user ? '/my-characters' : '/explore'} className="brand">
+            Chara<span>Dex</span>
+          </Link>
 
-        <div className="navbar-links">
-          <span className="navbar-user">
-            <FiUser aria-hidden="true" />
-            {user.displayName || user.username}
-          </span>
-          <button type="button" className="btn btn-outline btn-icon" onClick={logout}>
-            <FiLogOut aria-hidden="true" />
-            Log out
-          </button>
+          <div className="navbar-links">
+            <NavLink to="/explore" className="navbar-link">
+              <FiCompass aria-hidden="true" />
+              <span className="nav-label">Explore</span>
+            </NavLink>
+            {user && (
+              <NavLink to="/my-characters" className="navbar-link">
+                <FiGrid aria-hidden="true" />
+                <span className="nav-label">My Characters</span>
+              </NavLink>
+            )}
+          </div>
+        </div>
+
+        <div className="navbar-right">
+          {user ? (
+            <>
+              <Link to="/characters/new" className="btn btn-primary btn-icon">
+                <FiPlus aria-hidden="true" />
+                <span className="nav-label">New character</span>
+              </Link>
+
+              <span className="navbar-user" title={`@${user.username}`}>
+                <span className="navbar-avatar" aria-hidden="true">
+                  {name.charAt(0).toUpperCase()}
+                </span>
+                <span className="nav-label">{name}</span>
+              </span>
+
+              <button
+                type="button"
+                className="btn btn-outline btn-icon"
+                onClick={handleLogout}
+                aria-label="Log out"
+                title="Log out"
+              >
+                <FiLogOut aria-hidden="true" />
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/login" className="btn btn-outline btn-icon">
+                <FiLogIn aria-hidden="true" />
+                <span className="nav-label">Log in</span>
+              </Link>
+              <Link to="/register" className="btn btn-primary">
+                Sign up
+              </Link>
+            </>
+          )}
         </div>
       </nav>
     </header>

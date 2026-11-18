@@ -30,7 +30,7 @@ function Login() {
     setSubmitting(true)
     try {
       await login(formData.email, formData.password)
-      navigate('/home')
+      navigate('/my-characters')
     } catch (err) {
       setError(getErrorMessage(err))
       setSubmitting(false)

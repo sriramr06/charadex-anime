@@ -1,0 +1,30 @@
+.status-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-7) var(--space-4);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius);
+  text-align: center;
+}
+
+.status-icon {
+  width: 32px;
+  height: 32px;
+  margin-bottom: var(--space-3);
+  color: var(--color-muted);
+}
+
+.status-title {
+  margin: 0 0 var(--space-1);
+  font-weight: 600;
+}
+
+.status-text {
+  margin: 0;
+  max-width: 50ch;
+}
+
+.status-action {
+  margin-top: var(--space-4);
+}
