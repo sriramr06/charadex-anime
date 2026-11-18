@@ -1,6 +1,6 @@
 # CharaDex — Software Requirements Specification (SRS)
 
-**Version:** 1.2 | **Status:** All requirements (P0, P1, P2) implemented | **Date:** November 2026
+**Version:** 1.2 | **Status:** All requirements (P0, P1, P2) implemented | **Date:** May 2026
 
 **Project:** Original character creation, discovery, and community platform
 

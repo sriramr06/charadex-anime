@@ -1,6 +1,6 @@
 # CharaDex — Database Design
 
-**Version:** 1.2 | **Status:** Implemented (all five collections) | **Date:** November 2026
+**Version:** 1.2 | **Status:** Implemented (all five collections) | **Date:** May 2026
 
 **Related documents:** [Project Overview](project-overview-problem-statement.md) · [SRS](software-requirement-specifications.md) · [API Reference](api-reference.md)
 
