@@ -1,5 +1,6 @@
 import Character from '../models/Character.js'
 import escapeRegex from '../utils/escapeRegex.js'
+import { uploadImage, deleteImage } from '../config/cloudinary.js'
 
 // Public creator fields to include when populating
 const CREATOR_FIELDS = 'username displayName avatar'
@@ -138,8 +139,62 @@ export const deleteCharacter = async (req, res) => {
 
   await character.deleteOne()
 
-  // TODO (later features): delete this character's image from Cloudinary,
-  // and its likes and comments, so nothing is left behind.
+  // Remove the image from Cloudinary too (failures are only logged)
+  await deleteImage(character.image?.publicId)
+
+  // TODO (likes/comments feature): also delete this character's likes and comments.
 
   res.json({ message: 'Character deleted' })
+}
+
+// @route   PUT /api/characters/:id/image   (form field: "image")
+// @access  Private (owner only)
+export const uploadCharacterImage = async (req, res) => {
+  const character = await findOwnedCharacter(req, res)
+  if (!character) return
+
+  if (!req.file) {
+    return res.status(400).json({ message: 'Please choose an image to upload' })
+  }
+
+  const oldPublicId = character.image?.publicId
+
+  // 1. Upload the new image, 2. save it, 3. delete the old one
+  let newImage
+  try {
+    newImage = await uploadImage(req.file.buffer, 'characters')
+  } catch (error) {
+    // Cloudinary answers 400 when the file is not a real image
+    if (error.http_code === 400) {
+      return res.status(400).json({ message: 'That file is not a valid image' })
+    }
+    throw error
+  }
+
+  character.image = newImage
+  await character.save()
+
+  if (oldPublicId) {
+    await deleteImage(oldPublicId)
+  }
+
+  res.json({ character })
+}
+
+// @route   DELETE /api/characters/:id/image
+// @access  Private (owner only)
+export const removeCharacterImage = async (req, res) => {
+  const character = await findOwnedCharacter(req, res)
+  if (!character) return
+
+  const oldPublicId = character.image?.publicId
+  if (!oldPublicId) {
+    return res.status(400).json({ message: 'This character has no image' })
+  }
+
+  character.image = undefined
+  await character.save()
+  await deleteImage(oldPublicId)
+
+  res.json({ character })
 }

@@ -6,8 +6,18 @@ export const notFound = (req, res, next) => {
 
 // Central error handler: sends a JSON error instead of crashing
 export const errorHandler = (err, req, res, next) => {
-  let statusCode = res.statusCode === 200 ? 500 : res.statusCode
+  // Errors can carry their own status (e.g. the upload file filter sets 400)
+  let statusCode = err.statusCode || (res.statusCode === 200 ? 500 : res.statusCode)
   let message = err.message
+
+  // Upload errors from multer (e.g. file too large)
+  if (err.name === 'MulterError') {
+    statusCode = 400
+    message =
+      err.code === 'LIMIT_FILE_SIZE'
+        ? 'Image must be 2 MB or smaller'
+        : 'Upload failed: send one image in the "image" field'
+  }
 
   // Mongoose schema validation failed (e.g. name too long)
   if (err.name === 'ValidationError') {
@@ -32,6 +42,13 @@ export const errorHandler = (err, req, res, next) => {
   if (err.type === 'entity.parse.failed') {
     statusCode = 400
     message = 'Invalid JSON in request body'
+  }
+
+  // Unexpected server errors: log the details, send a generic message
+  // (so things like Cloudinary or database errors are never shown to users)
+  if (statusCode === 500) {
+    console.error(err)
+    message = 'Something went wrong on the server'
   }
 
   res.status(statusCode).json({
