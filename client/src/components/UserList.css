@@ -1,0 +1,43 @@
+.user-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Avatar on the left, name / handle / bio on the right (like comments) */
+.user-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-2);
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.user-row:hover {
+  background-color: var(--color-surface);
+  color: var(--color-text);
+}
+
+.user-row-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.user-row-name {
+  font-weight: 600;
+}
+
+.user-row-handle {
+  font-size: var(--text-sm);
+}
+
+/* One line of bio, cut off with "..." */
+.user-row-bio {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--text-sm);
+}

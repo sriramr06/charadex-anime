@@ -17,6 +17,44 @@ const findCreator = async (req, res) => {
   return creator
 }
 
+// Public fields shown in follower / following lists (never the email)
+const LIST_USER_FIELDS = 'username displayName avatar bio'
+const USERS_PER_PAGE = 20
+
+// Shared by the followers and following lists.
+//   matchField: which side of the Follow must be this creator
+//   showField:  which side to return as the list of users
+// e.g. followers = Follows where following = creator, show the follower
+const listFollowUsers = async (req, res, matchField, showField) => {
+  const creator = await findCreator(req, res)
+  if (!creator) return
+
+  const page = Math.max(parseInt(req.query.page) || 1, 1)
+  const filter = { [matchField]: creator._id }
+
+  const [follows, total] = await Promise.all([
+    Follow.find(filter)
+      .sort({ createdAt: -1, _id: -1 }) // most recent follows first
+      .skip((page - 1) * USERS_PER_PAGE)
+      .limit(USERS_PER_PAGE)
+      .populate(showField, LIST_USER_FIELDS),
+    Follow.countDocuments(filter),
+  ])
+
+  // Turn each Follow into the user on the other side (skip any missing users)
+  const users = follows.map((follow) => follow[showField]).filter(Boolean)
+
+  res.json({ users, page, totalPages: Math.ceil(total / USERS_PER_PAGE), total })
+}
+
+// @route   GET /api/users/:username/followers?page=
+// @access  Public
+export const getFollowers = (req, res) => listFollowUsers(req, res, 'following', 'follower')
+
+// @route   GET /api/users/:username/following?page=
+// @access  Public
+export const getFollowing = (req, res) => listFollowUsers(req, res, 'follower', 'following')
+
 // @route   GET /api/users/:username
 // @access  Public (optionalAuth: logged-in users also get followedByMe)
 export const getCreator = async (req, res) => {

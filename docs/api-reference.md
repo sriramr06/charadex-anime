@@ -1,7 +1,9 @@
 # CharaDex — API Reference
 
-**Version:** 1.2 | **Status:** Matches the implemented server | **Date:** November 2026
+**Version:** 1.3 | **Status:** Matches the implemented server | **Date:** November 2026
 
+> **Changes in 1.3:** New `GET /users/:username/followers` and `/following` endpoints.
+>
 > **Changes in 1.2:** Character list endpoints (`/characters`, `/characters/mine`, `/users/:username/characters`) now include `likeCount` on each item.
 >
 > **Changes in 1.1:** Character `tags` (FR-14), `tag` and `sort` options on `GET /characters`, and the new `GET /characters/tags` endpoint.
@@ -340,6 +342,16 @@ The creator's characters, newest first. Supports `page` and `limit`.
 
 **Response `200`:** paginated `characters` (`name`, `description`, `image`, `tags`, `createdAt`, `likeCount`).
 
+### GET `/users/:username/followers` — Public
+
+People who follow this creator, most recent follow first, **20 per page** (`?page=`).
+
+**Response `200`:** paginated `users`. Each item has only `_id`, `username`, `displayName`, `avatar`, and `bio` (never `email`).
+
+### GET `/users/:username/following` — Public
+
+Creators this person follows. Same format and paging as `/followers`.
+
 ### POST `/users/:username/follow` — Private
 
 Following yourself → `400 "You cannot follow yourself"`. Safe to repeat.
@@ -380,6 +392,8 @@ Safe to repeat. **Response `200`:** `{ "following": false, "followerCount": 1 }`
 | DELETE | `/users/me/avatar` | Private |
 | GET | `/users/:username` | Optional |
 | GET | `/users/:username/characters` | Public |
+| GET | `/users/:username/followers` | Public |
+| GET | `/users/:username/following` | Public |
 | POST | `/users/:username/follow` | Private |
 | DELETE | `/users/:username/follow` | Private |
 

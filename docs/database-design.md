@@ -472,6 +472,7 @@ Files are kept in memory during upload (multer `memoryStorage`) and streamed str
 | Character detail | `Character.findById(id).populate('creator', 'username displayName avatar')`, plus `Like.countDocuments({ character })` and, when logged in, `Like.exists({ character, user })` |
 | My Characters | `Character.find({ creator: req.user.id }).select('name description image createdAt updatedAt').sort({ createdAt: -1 })` |
 | Creator page (P1) | `User.findOne({ username })`, plus three counts (followers, following, characters) and, when logged in, `Follow.exists({ follower, following })` |
+| Followers / following lists (P1) | `Follow.find({ following: id })` (followers) or `Follow.find({ follower: id })` (following), newest first, 20 per page, then `.populate()` the other side with `username displayName avatar bio` |
 | Creator's characters (P1) | `Character.find({ creator: user._id }).select('name description image createdAt')` + pagination |
 | Character comments (P1) | `Comment.find({ character: id }).sort({ createdAt: -1 }).populate('author', 'username displayName avatar')`, 20 per page |
 

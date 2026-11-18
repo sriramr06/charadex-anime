@@ -74,7 +74,7 @@ Priority levels: **P0** = MVP, **P1** = post-MVP social features, **P2** = possi
 | FR-10 | P1 | Likes | An authenticated user can like/unlike a public character; each user has at most one active like per character. Like counts are shown on the character page and on every character card. |
 | FR-11 | P1 | Comments | An authenticated user can post comments (1–500 characters) on public characters; authors can delete their own comments. Comments cannot be edited, and character owners cannot delete other users' comments in V1. |
 | FR-12 | P1 | Follow creators | An authenticated user can follow/unfollow another creator but cannot follow themselves. |
-| FR-13 | P1 | Creator page | Anyone can view a creator profile (avatar, name, bio, character/follower/following counts) and their public characters. |
+| FR-13 | P1 | Creator page | Anyone can view a creator profile (avatar, name, bio, character/follower/following counts) with three tabs: their public characters, their followers, and the creators they follow. |
 | FR-14 | P2 | Tags and filters | Creators can add up to 10 free-form tags to a character. Anyone can filter Explore by one tag (combinable with name search), sort results by newest, oldest, or name, and pick from the 20 most-used tags. Tag conventions are listed in section 9. |
 | FR-15 | P0 | Landing page | Logged-out visitors see a welcome page with a short description of CharaDex, an "Enter Anime Verse" button that opens sign-up, and a link to log in. Logged-in users are sent to their My Characters page instead. |
 
@@ -192,7 +192,6 @@ The open decisions from version 1.0 were resolved as follows:
 
 - No password reset, email verification, or account deletion.
 - Username and email cannot be changed after registration.
-- No list pages for "followers" or "following"; only the counts are shown.
 - Name search uses a case-insensitive regular expression, which is fine for a small project but not suited to very large data sets.
 - Explore filters by one tag at a time; there is no "match several tags" option and no filtering by other character attributes.
 
@@ -216,7 +215,7 @@ P0 requirements were built and tested first, then P1 features were added one at 
 | FR-10 | Likes | Done | `components/LikeButton.jsx`, `/characters/:id/like` |
 | FR-11 | Comments | Done | `components/CommentSection.jsx`, `/characters/:id/comments`, `DELETE /comments/:id` |
 | FR-12 | Follow creators | Done | `components/CreatorInfo.jsx`, `/users/:username/follow` |
-| FR-13 | Creator page | Done | `pages/CreatorPage.jsx`, `GET /users/:username` |
+| FR-13 | Creator page | Done | `pages/CreatorPage.jsx`, `GET /users/:username`, `/users/:username/followers`, `/users/:username/following` |
 | FR-14 | Tags and filters | Done | `components/TagInput.jsx`, `pages/Explore.jsx`, `GET /characters?tag=&sort=`, `GET /characters/tags` |
 | FR-15 | Landing page | Done | `pages/Landing.jsx` |
 

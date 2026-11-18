@@ -11,7 +11,8 @@ import './CreatorInfo.css'
 // Left column of a creator page: avatar, name, bio, counts, and the
 // Follow button (or "Edit profile" on your own page).
 //   data = { creator, followerCount, followingCount, characterCount, followedByMe }
-function CreatorInfo({ data }) {
+//   onFollowChange = called after following/unfollowing (to refresh lists)
+function CreatorInfo({ data, onFollowChange }) {
   const { user } = useAuth()
   const { creator } = data
 
@@ -32,6 +33,7 @@ function CreatorInfo({ data }) {
         : await followCreator(creator.username)
       setFollowing(result.following)
       setFollowerCount(result.followerCount)
+      if (onFollowChange) onFollowChange()
     } catch (err) {
       setError(getErrorMessage(err))
     } finally {

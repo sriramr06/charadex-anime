@@ -15,7 +15,7 @@
 
 @media (max-width: 860px) {
   .character-form-layout {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--space-5);
   }
 

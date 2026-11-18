@@ -37,7 +37,9 @@ function App() {
         {/* Public: anyone can browse */}
         <Route path="/explore" element={<Explore />} />
         <Route path="/characters/:id" element={<CharacterDetail />} />
-        <Route path="/creators/:username" element={<CreatorPage />} />
+        <Route path="/creators/:username" element={<CreatorPage tab="characters" />} />
+        <Route path="/creators/:username/followers" element={<CreatorPage tab="followers" />} />
+        <Route path="/creators/:username/following" element={<CreatorPage tab="following" />} />
 
         {/* Logged-in users only */}
         <Route element={<ProtectedRoute />}>

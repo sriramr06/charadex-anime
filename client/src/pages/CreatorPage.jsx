@@ -1,23 +1,31 @@
-import { Link, useParams, useSearchParams } from 'react-router-dom'
-import { FiAlertCircle, FiFeather } from 'react-icons/fi'
+import { useState } from 'react'
+import { Link, NavLink, useParams, useSearchParams } from 'react-router-dom'
+import { FiAlertCircle, FiFeather, FiUsers } from 'react-icons/fi'
 import { useApi } from '../hooks/useApi'
 import { useAuth } from '../context/authContext'
 import CreatorInfo from '../components/CreatorInfo'
 import CharacterCard from '../components/CharacterCard'
+import UserList from '../components/UserList'
 import Pagination from '../components/Pagination'
 import StatusMessage from '../components/StatusMessage'
 import './CreatorPage.css'
 
 // Public page for one creator. Same layout as a character page:
-// creator info on the left, their characters on the right.
-function CreatorPage() {
+// creator info on the left; on the right, tabs for their characters,
+// their followers, and the people they follow.
+//   tab: 'characters' | 'followers' | 'following' (set by the route in App.jsx)
+function CreatorPage({ tab = 'characters' }) {
   const { username } = useParams()
   const { user } = useAuth()
   const [searchParams, setSearchParams] = useSearchParams()
   const page = Number(searchParams.get('page')) || 1
 
+  // Goes up by 1 after following/unfollowing, so the open list reloads
+  const [listVersion, setListVersion] = useState(0)
+
   const profile = useApi(`/users/${username}`)
-  const characters = useApi(`/users/${username}/characters?page=${page}`)
+  // The right column: one request for whichever tab is open
+  const list = useApi(`/users/${username}/${tab}?page=${page}`, listVersion)
 
   if (profile.loading) {
     return <p className="page muted">Loading creator...</p>
@@ -44,51 +52,93 @@ function CreatorPage() {
 
   const creator = profile.data.creator
   const isMe = user && user._id === creator._id
+  const base = `/creators/${creator.username}`
 
   const handlePageChange = (newPage) => {
     setSearchParams(newPage > 1 ? { page: newPage } : {})
     window.scrollTo({ top: 0 })
   }
 
+  // Messages for an empty list on each tab
+  const emptyMessages = {
+    characters: {
+      icon: FiFeather,
+      title: 'No characters yet',
+      text: isMe
+        ? 'Characters you create will appear here.'
+        : 'This creator has not published any characters yet.',
+    },
+    followers: {
+      icon: FiUsers,
+      title: 'No followers yet',
+      text: isMe ? 'When people follow you, they will appear here.' : 'Be the first to follow.',
+    },
+    following: {
+      icon: FiUsers,
+      title: 'Not following anyone yet',
+      text: isMe
+        ? 'Creators you follow will appear here.'
+        : 'This creator is not following anyone yet.',
+    },
+  }
+
+  const items = list.data ? list.data[tab === 'characters' ? 'characters' : 'users'] : []
+  const empty = emptyMessages[tab]
+
   return (
     <div className="page">
       <div className="creator-layout">
         {/* Left: who they are. key = fresh follow state per creator */}
         <aside className="creator-aside">
-          <CreatorInfo key={creator._id} data={profile.data} />
+          <CreatorInfo
+            key={creator._id}
+            data={profile.data}
+            onFollowChange={() => setListVersion((v) => v + 1)}
+          />
         </aside>
 
-        {/* Right: their characters */}
-        <section className="creator-main" aria-labelledby="creator-characters-title">
-          <h2 id="creator-characters-title" className="creator-section-title">
-            Characters
-          </h2>
+        {/* Right: tabs + the chosen list */}
+        <section className="creator-main">
+          <nav className="creator-tabs" aria-label={`${creator.username}'s pages`}>
+            <NavLink to={base} end className="creator-tab">
+              Characters
+            </NavLink>
+            <NavLink to={`${base}/followers`} className="creator-tab">
+              Followers
+            </NavLink>
+            <NavLink to={`${base}/following`} className="creator-tab">
+              Following
+            </NavLink>
+          </nav>
 
-          {characters.loading && <p className="muted">Loading characters...</p>}
+          {list.loading && <p className="muted">Loading...</p>}
 
-          {characters.error && (
-            <StatusMessage icon={FiAlertCircle} title="Could not load characters" role="alert">
-              {characters.error}
+          {list.error && (
+            <StatusMessage icon={FiAlertCircle} title="Could not load this list" role="alert">
+              {list.error}
             </StatusMessage>
           )}
 
-          {characters.data &&
-            (characters.data.characters.length === 0 ? (
-              <StatusMessage icon={FiFeather} title="No characters yet">
-                {isMe
-                  ? 'Characters you create will appear here.'
-                  : 'This creator has not published any characters yet.'}
+          {list.data &&
+            (items.length === 0 ? (
+              <StatusMessage icon={empty.icon} title={empty.title}>
+                {empty.text}
               </StatusMessage>
             ) : (
               <>
-                <div className="character-grid">
-                  {characters.data.characters.map((character) => (
-                    <CharacterCard key={character._id} character={character} showCreator={false} />
-                  ))}
-                </div>
+                {tab === 'characters' ? (
+                  <div className="character-grid">
+                    {items.map((character) => (
+                      <CharacterCard key={character._id} character={character} showCreator={false} />
+                    ))}
+                  </div>
+                ) : (
+                  <UserList users={items} />
+                )}
+
                 <Pagination
-                  page={characters.data.page}
-                  totalPages={characters.data.totalPages}
+                  page={list.data.page}
+                  totalPages={list.data.totalPages}
                   onPageChange={handlePageChange}
                 />
               </>

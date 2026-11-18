@@ -12,7 +12,7 @@ Creators build structured character profiles (artwork, personality, abilities wi
 - **Tags:** add up to 10 free-form tags to each character
 - **Explore:** browse all characters with name search, tag filters, sorting, and pagination
 - **Social:** like characters, comment on them, and follow creators
-- **Creator pages:** public profile with avatar, bio, counts, and the creator's characters
+- **Creator pages:** public profile with avatar, bio, counts, and tabs for the creator's characters, followers, and following
 - **Profile:** edit display name, bio, and avatar
 - **Theme:** muted "Charcoal & Plum" palette; follows the system light/dark setting; works on mobile and desktop
 
@@ -116,7 +116,8 @@ chardex/
 | `/register`, `/login` | Sign up / log in | Logged-out visitors |
 | `/explore` | Browse, search, filter by tag, and sort characters | Everyone |
 | `/characters/:id` | Character detail, likes, comments | Everyone |
-| `/creators/:username` | Creator page with follow button | Everyone |
+| `/creators/:username` | Creator page with follow button and their characters | Everyone |
+| `/creators/:username/followers`, `/following` | The creator's followers / the creators they follow | Everyone |
 | `/my-characters` | Your characters | Logged in |
 | `/characters/new`, `/characters/:id/edit` | Create / edit a character | Logged in |
 | `/profile` | Edit your profile and avatar | Logged in |

@@ -3,6 +3,8 @@ import { updateProfile, uploadAvatar, removeAvatar } from '../controllers/userCo
 import {
   getCreator,
   getCreatorCharacters,
+  getFollowers,
+  getFollowing,
   followCreator,
   unfollowCreator,
 } from '../controllers/creatorController.js'
@@ -19,6 +21,8 @@ router.delete('/me/avatar', protect, removeAvatar)
 // Public creator pages
 router.get('/:username', optionalAuth, getCreator)
 router.get('/:username/characters', getCreatorCharacters)
+router.get('/:username/followers', getFollowers)
+router.get('/:username/following', getFollowing)
 
 // Following
 router.post('/:username/follow', protect, followCreator)
