@@ -12,6 +12,7 @@ import CharacterDetail from './pages/CharacterDetail.jsx'
 import CreateCharacter from './pages/CreateCharacter.jsx'
 import EditCharacter from './pages/EditCharacter.jsx'
 import Profile from './pages/Profile.jsx'
+import CreatorPage from './pages/CreatorPage.jsx'
 import NotFound from './pages/NotFound.jsx'
 
 function App() {
@@ -36,6 +37,7 @@ function App() {
         {/* Public: anyone can browse */}
         <Route path="/explore" element={<Explore />} />
         <Route path="/characters/:id" element={<CharacterDetail />} />
+        <Route path="/creators/:username" element={<CreatorPage />} />
 
         {/* Logged-in users only */}
         <Route element={<ProtectedRoute />}>

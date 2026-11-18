@@ -154,9 +154,13 @@ function CommentSection({ characterId }) {
               <Avatar user={author} size="sm" />
               <div className="comment-body">
                 <p className="comment-meta">
-                  <span className="comment-author">
-                    {author ? author.displayName || author.username : 'Deleted user'}
-                  </span>
+                  {author ? (
+                    <Link to={`/creators/${author.username}`} className="comment-author">
+                      {author.displayName || author.username}
+                    </Link>
+                  ) : (
+                    <span className="comment-author">Deleted user</span>
+                  )}
                   {author && <span className="muted">@{author.username}</span>}
                   <span className="muted">· {formatDate(comment.createdAt)}</span>
                 </p>

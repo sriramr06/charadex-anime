@@ -82,6 +82,13 @@
 
 .comment-author {
   font-weight: 600;
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+a.comment-author:hover {
+  color: var(--color-primary);
+  text-decoration: underline;
 }
 
 /* Keep line breaks; break very long words */

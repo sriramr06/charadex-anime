@@ -86,8 +86,15 @@ function CharacterDetail() {
               <p className="detail-meta muted">
                 <Avatar user={creator} size="sm" />
                 <span>
-                  by @{creator ? creator.username : 'unknown'} · Created{' '}
-                  {formatDate(character.createdAt)}
+                  by{' '}
+                  {creator ? (
+                    <Link to={`/creators/${creator.username}`} className="creator-link">
+                      @{creator.username}
+                    </Link>
+                  ) : (
+                    '@unknown'
+                  )}{' '}
+                  · Created {formatDate(character.createdAt)}
                 </span>
               </p>
               <div className="detail-like">

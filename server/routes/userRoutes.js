@@ -1,15 +1,27 @@
 import express from 'express'
 import { updateProfile, uploadAvatar, removeAvatar } from '../controllers/userController.js'
-import { protect } from '../middleware/authMiddleware.js'
+import {
+  getCreator,
+  getCreatorCharacters,
+  followCreator,
+  unfollowCreator,
+} from '../controllers/creatorController.js'
+import { protect, optionalAuth } from '../middleware/authMiddleware.js'
 import { uploadSingleImage } from '../middleware/uploadMiddleware.js'
 
 const router = express.Router()
 
-// Every route here needs a logged-in user
-router.use(protect)
+// Your own profile ("/me" routes must come before "/:username")
+router.put('/me', protect, updateProfile)
+router.put('/me/avatar', protect, uploadSingleImage, uploadAvatar)
+router.delete('/me/avatar', protect, removeAvatar)
 
-router.put('/me', updateProfile)
-router.put('/me/avatar', uploadSingleImage, uploadAvatar)
-router.delete('/me/avatar', removeAvatar)
+// Public creator pages
+router.get('/:username', optionalAuth, getCreator)
+router.get('/:username/characters', getCreatorCharacters)
+
+// Following
+router.post('/:username/follow', protect, followCreator)
+router.delete('/:username/follow', protect, unfollowCreator)
 
 export default router

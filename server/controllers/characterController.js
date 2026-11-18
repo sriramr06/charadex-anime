@@ -2,6 +2,7 @@ import Character from '../models/Character.js'
 import Like from '../models/Like.js'
 import Comment from '../models/Comment.js'
 import escapeRegex from '../utils/escapeRegex.js'
+import getPagination from '../utils/pagination.js'
 import { uploadImage, deleteImage } from '../config/cloudinary.js'
 
 // Public creator fields to include when populating
@@ -19,13 +20,6 @@ const pickEditableFields = (body) => {
     }
   })
   return data
-}
-
-// Read ?page= and ?limit= safely (defaults: page 1, 12 per page, max 50)
-const getPagination = (query) => {
-  const page = Math.max(parseInt(query.page) || 1, 1)
-  const limit = Math.min(Math.max(parseInt(query.limit) || 12, 1), 50)
-  return { page, limit, skip: (page - 1) * limit }
 }
 
 // Load a character and make sure the logged-in user owns it.

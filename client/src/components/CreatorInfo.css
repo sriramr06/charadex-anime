@@ -1,0 +1,49 @@
+.creator-info .avatar-lg {
+  margin-bottom: var(--space-4);
+}
+
+.creator-name {
+  margin: 0;
+  font-size: var(--text-xl);
+  overflow-wrap: anywhere;
+}
+
+.creator-handle {
+  margin: var(--space-1) 0 var(--space-4);
+  font-size: var(--text-sm);
+}
+
+.creator-bio {
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+/* Three counts in a row: number on top, label below */
+.creator-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin: 0 0 var(--space-4);
+  padding: var(--space-3) 0;
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.creator-stats div {
+  display: flex;
+  flex-direction: column;
+}
+
+.creator-stats dd {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: 700;
+}
+
+.creator-stats dt {
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+}
+
+.creator-error {
+  margin-top: var(--space-3);
+}

@@ -48,6 +48,17 @@
   font-size: var(--text-sm);
 }
 
+.creator-link {
+  color: var(--color-text);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.creator-link:hover {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+
 .detail-like {
   margin-top: var(--space-3);
 }

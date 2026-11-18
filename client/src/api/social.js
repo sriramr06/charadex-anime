@@ -12,6 +12,18 @@ export const unlikeCharacter = async (characterId) => {
   return res.data
 }
 
+// ----- Follows (each returns { following, followerCount }) -----
+
+export const followCreator = async (username) => {
+  const res = await api.post(`/users/${username}/follow`)
+  return res.data
+}
+
+export const unfollowCreator = async (username) => {
+  const res = await api.delete(`/users/${username}/follow`)
+  return res.data
+}
+
 // ----- Comments -----
 
 // Returns { comments, page, totalPages, total }

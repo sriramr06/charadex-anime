@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { FiUpload, FiTrash2 } from 'react-icons/fi'
+import { Link } from 'react-router-dom'
+import { FiUpload, FiTrash2, FiExternalLink } from 'react-icons/fi'
 import { useAuth } from '../context/authContext'
 import { getErrorMessage } from '../api/axios'
 import { updateProfile, uploadAvatar, removeAvatar } from '../api/users'
@@ -96,6 +97,12 @@ function Profile() {
       <PageHeader
         title="Your profile"
         subtitle={`Member since ${formatDate(user.createdAt)}`}
+        actions={
+          <Link to={`/creators/${user.username}`} className="btn btn-outline btn-icon">
+            <FiExternalLink aria-hidden="true" />
+            View public page
+          </Link>
+        }
       />
 
       <form className="profile-layout" onSubmit={handleSubmit} noValidate>

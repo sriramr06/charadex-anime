@@ -194,6 +194,11 @@ a.brand:hover {
   padding: var(--space-3) var(--space-4);
 }
 
+/* Full-width button that also has an icon */
+.btn-block.btn-icon {
+  display: flex;
+}
+
 /* Visible focus outline for keyboard users */
 .btn:focus-visible,
 .btn-text:focus-visible,
