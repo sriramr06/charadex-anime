@@ -55,7 +55,7 @@ Priority levels: **P0** = MVP, **P1** = post-MVP social features, **P2** = possi
 
 | ID | Priority | Feature | Requirement |
 | --- | --- | --- | --- |
-| FR-01 | P0 | Registration | A visitor can create an account using a unique username, email address, and password; invalid or duplicate inputs are rejected. |
+| FR-01 | P0 | Registration | A visitor can create an account using a unique username, email address, and password; invalid or duplicate inputs are rejected. Sign-up has two steps: (1) email, password, and confirm password, where the email is checked for availability before continuing; (2) choose a username, after which the account is created. |
 | FR-02 | P0 | Authentication | A registered user can sign in and sign out; protected actions require a valid JWT. Sign-in returns a single JWT with an expiry time; sign-out removes the token on the client. |
 | FR-03 | P0 | Profile | An authenticated user can view and edit their own display information and optional avatar. |
 | FR-04 | P0 | Create character | An authenticated user can create an OC with required name and optional description, personality, abilities, backstory, and artwork. |
@@ -69,6 +69,7 @@ Priority levels: **P0** = MVP, **P1** = post-MVP social features, **P2** = possi
 | FR-12 | P1 | Follow creators | An authenticated user can follow/unfollow another creator but cannot follow themselves. |
 | FR-13 | P1 | Creator page | Anyone can view a creator profile and their public characters. |
 | FR-14 | P2 | Advanced discovery | Users may filter by tags or character attributes after data conventions are defined. |
+| FR-15 | P0 | Landing page | Logged-out visitors see a welcome page with a short description of CharaDex, an "Enter Anime Verse" button that opens sign-up, and a link to log in. Logged-in users are sent to their home page instead. |
 
 ## 4. Data and Business Rules
 
@@ -103,7 +104,8 @@ V1 uses a simple, single-token JWT approach suitable for a learning project:
 - The client stores the token and sends it in the `Authorization: Bearer <token>` header on protected requests.
 - An Express middleware verifies the token and attaches the user to the request; invalid or expired tokens receive a `401 Unauthorized` response.
 - When the token expires, the user simply logs in again.
-- Logout removes the token from the client.
+- Logout removes the token from the client and returns the user to the landing page.
+- During sign-up, `POST /api/auth/check-email` lets step 1 confirm the email is not already registered before the user chooses a username.
 
 **Not included in V1:** refresh tokens, token rotation, server-side token blacklists, or OAuth/social login. These may be revisited later.
 
@@ -128,7 +130,8 @@ The release boundary is intentionally small.
 
 ### 7.1 MVP (P0)
 
-- Authentication (basic JWT)
+- Landing page
+- Authentication (basic JWT, two-step sign-up)
 - Editable user profile
 - Character creation, viewing, updating, and deletion
 - One primary image per character
@@ -156,13 +159,14 @@ Likes, comments, creator following, and creator profile pages. These remain proj
 These scenarios should pass before each relevant release.
 
 1. A visitor can open Explore and read a public character without logging in.
-2. A newly registered user can log in and publish a character with a name.
+2. A visitor can go from the landing page through both sign-up steps, then log in and publish a character with a name.
 3. The published character appears in Explore and on the creator's My Characters page.
 4. The owner can edit and delete their character; another user cannot.
 5. Invalid uploads and missing required fields produce understandable errors.
 6. Search returns matching character names and a useful empty state for no results.
 7. A request with a missing, invalid, or expired token to a protected route is rejected with `401`.
-8. *After MVP:* a user can like once, unlike, comment, and follow another creator without duplicates.
+8. Sign-up step 1 rejects an already-registered email before the username step.
+9. *After MVP:* a user can like once, unlike, comment, and follow another creator without duplicates.
 
 ## 9. Risks and Open Decisions
 

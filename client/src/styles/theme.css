@@ -1,0 +1,95 @@
+/*
+  CharaDex theme — "Charcoal & Plum"
+  ----------------------------------
+  Muted, low-saturation colors. No neon, glows, or gradients.
+  Always use these variables instead of hard-coded colors.
+
+  Dark mode is used when the visitor's system prefers dark;
+  otherwise the matching light palette is used.
+*/
+
+/* ===== Light palette (default) ===== */
+:root {
+  color-scheme: light dark;
+
+  /* Surfaces */
+  --color-bg: #f4f2ef;          /* page background */
+  --color-surface: #ffffff;     /* cards, navbar, inputs */
+  --color-surface-2: #ebe8e4;   /* subtle panels, hover rows */
+  --color-border: #dedad5;
+
+  /* Text */
+  --color-text: #26232a;
+  --color-muted: #6b6570;
+
+  /* Accent: dusty plum */
+  --color-primary: #6e5a85;
+  --color-primary-hover: #5b4a6f;
+  --color-on-primary: #ffffff;  /* text on primary buttons */
+
+  /* Feedback */
+  --color-error: #a23b3b;
+  --color-error-bg: #f6e9e8;
+  --color-success: #3f6b4a;
+  --color-success-bg: #e7f0e9;
+
+  --color-focus: #6e5a85;
+
+  /* Shape and depth */
+  --radius-sm: 6px;
+  --radius: 10px;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+
+  /* Spacing scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+
+  /* Side padding for full-width pages */
+  --page-padding: 24px;
+
+  /* Typography */
+  --font-body: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.5rem;
+  --text-2xl: 2rem;
+}
+
+/* ===== Dark palette ===== */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #1b1a1e;
+    --color-surface: #242328;
+    --color-surface-2: #2c2a31;
+    --color-border: #34323a;
+
+    --color-text: #e7e4de;
+    --color-muted: #a19da6;
+
+    --color-primary: #9c84b4;
+    --color-primary-hover: #ab95c1;
+    --color-on-primary: #1b1a1e;
+
+    --color-error: #e0a3a3;
+    --color-error-bg: #3a2729;
+    --color-success: #a3c2a6;
+    --color-success-bg: #24302a;
+
+    --color-focus: #9c84b4;
+
+    --shadow: none;
+  }
+}
+
+/* Smaller side padding on phones */
+@media (max-width: 600px) {
+  :root {
+    --page-padding: 16px;
+  }
+}

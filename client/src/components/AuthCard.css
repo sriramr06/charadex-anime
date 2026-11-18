@@ -1,0 +1,95 @@
+/* Fills the screen and puts the card in the middle */
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-5);
+  padding: var(--space-6) var(--page-padding);
+}
+
+.auth-brand {
+  font-size: var(--text-xl);
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 400px;
+  padding: var(--space-6) var(--space-5);
+}
+
+.auth-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  margin: 0 auto var(--space-4);
+  border-radius: 50%;
+  background-color: var(--color-surface-2);
+  color: var(--color-primary);
+}
+
+.auth-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.auth-card h1 {
+  margin-bottom: var(--space-1);
+  font-size: var(--text-xl);
+  text-align: center;
+}
+
+.auth-subtitle {
+  margin-bottom: var(--space-5);
+  text-align: center;
+  font-size: var(--text-sm);
+}
+
+.auth-switch {
+  margin: var(--space-5) 0 0;
+  text-align: center;
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+}
+
+/* Step indicator for the two-step sign up */
+.auth-steps {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.auth-step {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background-color: var(--color-border);
+}
+
+.auth-step.active {
+  background-color: var(--color-primary);
+}
+
+.auth-step-label {
+  margin-bottom: var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+}
+
+.auth-actions {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.auth-actions .btn-primary {
+  flex: 1;
+}
+
+@media (max-width: 480px) {
+  .auth-card {
+    padding: var(--space-5) var(--space-4);
+  }
+}

@@ -45,6 +45,20 @@ export const register = async (req, res) => {
   })
 }
 
+// Used by step 1 of the sign-up form, before the user picks a username
+// @route   POST /api/auth/check-email
+// @access  Public
+export const checkEmail = async (req, res) => {
+  const { email } = req.body
+
+  if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
+    return res.status(400).json({ message: 'Please enter a valid email address' })
+  }
+
+  const existing = await User.findOne({ email: email.toLowerCase().trim() })
+  res.json({ available: !existing })
+}
+
 // @route   POST /api/auth/login
 // @access  Public
 export const login = async (req, res) => {

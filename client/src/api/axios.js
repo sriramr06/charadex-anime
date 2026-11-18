@@ -15,4 +15,15 @@ api.interceptors.request.use((config) => {
   return config
 })
 
+// Pull a readable message out of an axios error
+export const getErrorMessage = (error) => {
+  if (error.response && error.response.data && error.response.data.message) {
+    return error.response.data.message
+  }
+  if (error.request) {
+    return 'Cannot reach the server. Please try again.'
+  }
+  return 'Something went wrong. Please try again.'
+}
+
 export default api
