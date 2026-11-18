@@ -1,8 +1,12 @@
 # CharaDex — Software Requirements Specification (SRS)
 
-**Version:** 1.0 | **Status:** Draft for review | **Date:** November 2026
+**Version:** 1.1 | **Status:** P0 and P1 implemented | **Date:** November 2026
 
 **Project:** Original character creation, discovery, and community platform
+
+**Related documents:** [Project Overview](project-overview-problem-statement.md) · [Database Design](database-design.md) · [API Reference](api-reference.md)
+
+> **Changes in 1.1:** Requirements now describe the behaviour as built. Added FR-15 (landing page) and the two-step sign-up, resolved the open decisions (section 9), and added an implementation status table (section 11).
 
 ---
 
@@ -31,15 +35,16 @@ CharaDex allows creators to publish structured original character (OC) profiles,
 
 ## 2. Overall Description
 
-CharaDex is a responsive browser-based application. Visitors browse public characters; registered users manage their own profiles and characters. Social features are planned after the core workflow is stable.
+CharaDex is a responsive browser-based application. Visitors browse public characters and creator pages; registered users manage their own profiles and characters, and can like, comment, and follow creators.
 
 ### 2.1 User roles
 
 | Role | Permissions |
 | --- | --- |
-| **Visitor** | Browse and search public characters. |
-| **Registered user** | All visitor actions, plus create, edit, and delete own characters; manage own profile. |
+| **Visitor** | Browse and search public characters; view character details, comments, and creator pages. |
+| **Registered user** | All visitor actions, plus create, edit, and delete own characters; manage own profile; like, comment, and follow. |
 | **Character owner** | A registered user with permission to modify a specific character. |
+| **Comment author** | A registered user who may delete their own comment. |
 
 No administrator dashboard is required in V1.
 
@@ -57,19 +62,19 @@ Priority levels: **P0** = MVP, **P1** = post-MVP social features, **P2** = possi
 | --- | --- | --- | --- |
 | FR-01 | P0 | Registration | A visitor can create an account using a unique username, email address, and password; invalid or duplicate inputs are rejected. Sign-up has two steps: (1) email, password, and confirm password, where the email is checked for availability before continuing; (2) choose a username, after which the account is created. |
 | FR-02 | P0 | Authentication | A registered user can sign in and sign out; protected actions require a valid JWT. Sign-in returns a single JWT with an expiry time; sign-out removes the token on the client. |
-| FR-03 | P0 | Profile | An authenticated user can view and edit their own display information and optional avatar. |
-| FR-04 | P0 | Create character | An authenticated user can create an OC with required name and optional description, personality, abilities, backstory, and artwork. |
-| FR-05 | P0 | Image upload | A user can upload supported image files for their own OC; the server validates type and size and stores Cloudinary identifiers. |
+| FR-03 | P0 | Profile | An authenticated user can view and edit their own display name, bio, and optional avatar. Username and email are shown but cannot be changed in V1. An empty display name falls back to the username. |
+| FR-04 | P0 | Create character | An authenticated user can create an OC with required name and optional description, personality, abilities, backstory, and artwork. Abilities are a list; each ability can contain a list of named techniques. |
+| FR-05 | P0 | Image upload | A user can upload a JPG, PNG, or WEBP image up to 2 MB for their own OC; the server validates type and size and stores Cloudinary identifiers. Replacing or removing an image deletes the old file from Cloudinary. |
 | FR-06 | P0 | View character | Anyone can view a public character detail page with creator attribution and available fields. |
 | FR-07 | P0 | Edit/delete | Only a character owner can update or delete their character; unauthorized requests are rejected. |
 | FR-08 | P0 | Explore/search | Anyone can browse public characters in paginated results and search by character name. |
 | FR-09 | P0 | My characters | Authenticated users can list and manage characters they created. |
 | FR-10 | P1 | Likes | An authenticated user can like/unlike a public character; each user has at most one active like per character. |
-| FR-11 | P1 | Comments | An authenticated user can post comments on public characters; authors can delete their own comments. |
+| FR-11 | P1 | Comments | An authenticated user can post comments (1–500 characters) on public characters; authors can delete their own comments. Comments cannot be edited, and character owners cannot delete other users' comments in V1. |
 | FR-12 | P1 | Follow creators | An authenticated user can follow/unfollow another creator but cannot follow themselves. |
-| FR-13 | P1 | Creator page | Anyone can view a creator profile and their public characters. |
+| FR-13 | P1 | Creator page | Anyone can view a creator profile (avatar, name, bio, character/follower/following counts) and their public characters. |
 | FR-14 | P2 | Advanced discovery | Users may filter by tags or character attributes after data conventions are defined. |
-| FR-15 | P0 | Landing page | Logged-out visitors see a welcome page with a short description of CharaDex, an "Enter Anime Verse" button that opens sign-up, and a link to log in. Logged-in users are sent to their home page instead. |
+| FR-15 | P0 | Landing page | Logged-out visitors see a welcome page with a short description of CharaDex, an "Enter Anime Verse" button that opens sign-up, and a link to log in. Logged-in users are sent to their My Characters page instead. |
 
 ## 4. Data and Business Rules
 
@@ -94,7 +99,7 @@ The Database Design document will define exact MongoDB schemas and indexes. This
 | **Media** | Cloudinary for uploaded images. |
 | **Authentication** | Basic JWT authentication with secure password hashing (bcrypt). |
 
-Exact API routes will be specified during implementation.
+The implemented routes, request bodies, and responses are listed in the [API Reference](api-reference.md).
 
 ### 5.1 Authentication approach (V1)
 
@@ -140,7 +145,7 @@ The release boundary is intentionally small.
 
 ### 7.2 Post-MVP (P1)
 
-Likes, comments, creator following, and creator profile pages. These remain project goals but are not blockers for an initial usable release.
+Likes, comments, creator following, and creator profile pages. All four are implemented (see section 11).
 
 ### 7.3 Out of scope for V1
 
@@ -168,18 +173,50 @@ These scenarios should pass before each relevant release.
 8. Sign-up step 1 rejects an already-registered email before the username step.
 9. *After MVP:* a user can like once, unlike, comment, and follow another creator without duplicates.
 
-## 9. Risks and Open Decisions
+## 9. Resolved Decisions
 
-Before database design, confirm:
+The open decisions from version 1.0 were resolved as follows:
 
-- Whether characters are public-only or support drafts
-- Exact image size/type limits
-- Username/profile fields
-- Whether character tags are part of MVP
-- Whether comment editing is needed
+| Question | Decision |
+| --- | --- |
+| Public-only characters or drafts? | Public-only. Drafts can be added later with a `status` field. |
+| Image size/type limits | JPG, PNG, or WEBP; max 2 MB; one primary image per character. |
+| Username/profile fields | Username (3–20 letters, numbers, underscores), email, display name (max 50), bio (max 300), avatar. |
+| Character tags in MVP? | No. Left for FR-14 (P2). |
+| Comment editing? | No. Comments can be posted and deleted only. |
 
-**Recommended default:** public-only characters, single image, simple profile fields, no tags in MVP.
+### 9.1 Known limitations
+
+- No password reset, email verification, or account deletion.
+- Username and email cannot be changed after registration.
+- Explore cards do not show like counts (likes appear on the character detail page).
+- No list pages for "followers" or "following"; only the counts are shown.
+- Name search uses a case-insensitive regular expression, which is fine for a small project but not suited to very large data sets.
 
 ## 10. Implementation Guidance
 
-Build and test P0 requirements first, then add P1 features incrementally. Keep the SRS synchronized with implemented behavior. This document defines requirements, not database collections or final API endpoint names.
+P0 requirements were built and tested first, then P1 features were added one at a time. Keep this SRS in sync with the implemented behaviour when features change.
+
+## 11. Implementation Status
+
+| ID | Feature | Status | Where |
+| --- | --- | --- | --- |
+| FR-01 | Registration (two-step) | Done | `pages/Register.jsx`, `POST /auth/register`, `POST /auth/check-email` |
+| FR-02 | Authentication | Done | `context/AuthProvider.jsx`, `POST /auth/login`, `GET /auth/me` |
+| FR-03 | Profile and avatar | Done | `pages/Profile.jsx`, `PUT /users/me`, `/users/me/avatar` |
+| FR-04 | Create character | Done | `pages/CreateCharacter.jsx`, `POST /characters` |
+| FR-05 | Image upload | Done | `components/ImagePicker.jsx`, `/characters/:id/image` |
+| FR-06 | View character | Done | `pages/CharacterDetail.jsx`, `GET /characters/:id` |
+| FR-07 | Edit/delete | Done | `pages/EditCharacter.jsx`, `PUT`/`DELETE /characters/:id` |
+| FR-08 | Explore/search | Done | `pages/Explore.jsx`, `GET /characters` |
+| FR-09 | My characters | Done | `pages/MyCharacters.jsx`, `GET /characters/mine` |
+| FR-10 | Likes | Done | `components/LikeButton.jsx`, `/characters/:id/like` |
+| FR-11 | Comments | Done | `components/CommentSection.jsx`, `/characters/:id/comments`, `DELETE /comments/:id` |
+| FR-12 | Follow creators | Done | `components/CreatorInfo.jsx`, `/users/:username/follow` |
+| FR-13 | Creator page | Done | `pages/CreatorPage.jsx`, `GET /users/:username` |
+| FR-14 | Advanced discovery (tags/filters) | Not started (P2) | — |
+| FR-15 | Landing page | Done | `pages/Landing.jsx` |
+
+Frontend paths are under `client/src/`; API paths are under `/api`.
+
+All acceptance scenarios in section 8 were checked during development: each feature's API was exercised with scripted requests (including failure cases) and its pages with an automated browser run on desktop and mobile widths, in both light and dark mode.

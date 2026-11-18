@@ -1,8 +1,10 @@
 # CharaDex — Database Design
 
-**Version:** 1.0 | **Status:** Draft for review | **Date:** November 2026
+**Version:** 1.1 | **Status:** Implemented (all five collections) | **Date:** November 2026
 
-**Related documents:** [Project Overview](project-overview-problem-statement.md) · [SRS](software-requirement-specifications.md)
+**Related documents:** [Project Overview](project-overview-problem-statement.md) · [SRS](software-requirement-specifications.md) · [API Reference](api-reference.md)
+
+> **Changes in 1.1:** Updated to match the implemented code: model file locations (section 9), Cloudinary storage details (section 5.1), the extra data returned by detail and creator queries (section 6), and small behaviours such as the default display name.
 
 ---
 
@@ -127,9 +129,12 @@ const userSchema = new mongoose.Schema(
 
 **Notes:**
 
-- Hash the password with bcrypt before saving (in the register controller or a `pre('save')` hook).
-- Because of `select: false`, the login query must use `User.findOne({ email }).select('+password')`.
-- Never send `password` or `email` in public API responses (e.g. on creator pages).
+- The password is hashed with bcrypt (10 salt rounds) in a `pre('save')` hook, only when it is new or changed. A `matchPassword()` method compares a login attempt with the hash.
+- Because of `select: false`, the login query uses `User.findOne({ email }).select('+password')`.
+- At registration, `displayName` is set to the username as typed (e.g. `Test_User`), while `username` itself is stored lowercase (`test_user`).
+- Saving an empty display name or bio removes the field; the app then shows `@username` instead.
+- `username` and `email` cannot be changed after registration in V1.
+- Never send `password` or `email` in public API responses (e.g. on creator pages). Public responses use only `username displayName avatar` (plus `bio` and `createdAt` on creator pages).
 
 **Example document:**
 
@@ -157,7 +162,7 @@ Stores an original character profile. Every character belongs to exactly one cre
 | Field | Type | Required | Rules |
 | --- | --- | --- | --- |
 | `name` | String | Yes | Trimmed; 1–60 characters |
-| `description` | String | No | Short summary for gallery cards; max 300 characters |
+| `description` | String | No | Trimmed; short summary for gallery cards; max 300 characters |
 | `personality` | String | No | Max 2,000 characters |
 | `abilities` | Array of Ability | No | Max 20 abilities (see below) |
 | `backstory` | String | No | Max 10,000 characters |
@@ -220,7 +225,7 @@ const abilitySchema = new mongoose.Schema(
 const characterSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true, maxlength: 60 },
-    description: { type: String, maxlength: 300 },
+    description: { type: String, trim: true, maxlength: 300 },
     personality: { type: String, maxlength: 2000 },
     abilities: {
       type: [abilitySchema],
@@ -245,6 +250,8 @@ characterSchema.index({ createdAt: -1 });
 ```
 
 `_id: false` keeps abilities and techniques simple: when a character is edited, the whole `abilities` array is sent and replaced.
+
+Only `name`, `description`, `personality`, `abilities`, and `backstory` can be set from a request body. `creator` comes from the logged-in user and `image` is only changed through the image upload endpoints. Before saving, the React form trims text and drops completely empty ability and technique rows.
 
 **Example document:**
 
@@ -354,8 +361,9 @@ commentSchema.index({ character: 1, createdAt: -1 });
 
 **Notes:**
 
-- Only the comment's `author` can delete it (checked on the server).
+- Only the comment's `author` can delete it (checked on the server). The character's owner cannot delete other people's comments in V1.
 - When listing, populate the author with only public fields: `.populate('author', 'username displayName avatar')`.
+- Comments are listed 20 per page, newest first.
 
 ### 4.5 Follow (P1)
 
@@ -392,6 +400,8 @@ followSchema.index({ following: 1 });
 **Notes:**
 
 - The controller rejects requests where `follower` equals `following` (users cannot follow themselves).
+- Creators are looked up by username in the URL (`/api/users/:username/follow`), not by id.
+- **Follow:** `Follow.create(...)`; a duplicate-key error (`11000`) means already following and is treated as success.
 - **Follower count:** `Follow.countDocuments({ following: userId })`.
 - **Following count:** `Follow.countDocuments({ follower: userId })`.
 
@@ -409,6 +419,21 @@ followSchema.index({ following: 1 });
 
 Account deletion is not part of V1, so there are no cleanup rules for deleting a user.
 
+### 5.1 Image storage (Cloudinary)
+
+MongoDB stores only `{ url, publicId }` for each image. The files themselves live on Cloudinary.
+
+| Item | Value |
+| --- | --- |
+| Character images | `<CLOUDINARY_FOLDER>/characters/` |
+| Avatars | `<CLOUDINARY_FOLDER>/avatars/` |
+| Root folder | `CLOUDINARY_FOLDER` environment variable, default `charadex` |
+| Accepted files | JPG, PNG, WEBP up to 2 MB (checked in the browser and again by multer on the server) |
+| On upload | Images larger than 1200 × 1200 are shrunk (aspect ratio kept); quality is set automatically |
+| On display | The client adds size options to the URL: cards `c_fill,w_400,h_500`, detail `c_limit,w_800`, avatars `c_fill,w_320,h_320`, all with `f_auto,q_auto` |
+
+Files are kept in memory during upload (multer `memoryStorage`) and streamed straight to Cloudinary; nothing is written to the server's disk.
+
 ## 6. Common Queries
 
 | Feature | Query (simplified) |
@@ -416,14 +441,16 @@ Account deletion is not part of V1, so there are no cleanup rules for deleting a
 | Explore (paginated) | `Character.find().sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit).populate('creator', 'username displayName avatar')` |
 | Total for pagination | `Character.countDocuments(filter)` |
 | Search by name | `Character.find({ name: { $regex: escapedSearch, $options: 'i' } })` + same pagination |
-| Character detail | `Character.findById(id).populate('creator', 'username displayName avatar')` |
-| My Characters | `Character.find({ creator: req.user.id }).sort({ createdAt: -1 })` |
-| Creator page (P1) | `User.findOne({ username })` then `Character.find({ creator: user._id })` |
-| Character comments (P1) | `Comment.find({ character: id }).sort({ createdAt: -1 }).populate('author', 'username displayName avatar')` |
+| Character detail | `Character.findById(id).populate('creator', 'username displayName avatar')`, plus `Like.countDocuments({ character })` and, when logged in, `Like.exists({ character, user })` |
+| My Characters | `Character.find({ creator: req.user.id }).select('name description image createdAt updatedAt').sort({ createdAt: -1 })` |
+| Creator page (P1) | `User.findOne({ username })`, plus three counts (followers, following, characters) and, when logged in, `Follow.exists({ follower, following })` |
+| Creator's characters (P1) | `Character.find({ creator: user._id }).select('name description image createdAt')` + pagination |
+| Character comments (P1) | `Comment.find({ character: id }).sort({ createdAt: -1 }).populate('author', 'username displayName avatar')`, 20 per page |
 
 **Notes:**
 
-- **Pagination:** default `limit` of 12, maximum 50.
+- **Pagination:** default `limit` of 12, maximum 50 (shared helper in `server/utils/pagination.js`). Comments use a fixed 20 per page.
+- **Independent queries run together** with `Promise.all`, e.g. the page of results and the total count.
 - **Explore cards:** select only the fields a card needs (`name description image creator`) so responses stay small.
 - **Search input:** escape special regex characters in the user's search text before using it in `$regex`, so input like `(` or `*` doesn't break the query.
 - **Case-insensitive regex:** this doesn't use an index efficiently, but it is fine at the scale of this project.
@@ -439,12 +466,18 @@ Validation happens in two places:
 | --- | --- |
 | Unique username and email | Unique index + friendly error on duplicate key (`11000`) |
 | Password minimum length (8 characters) | Register controller (before hashing) |
-| Image type JPG/PNG/WEBP, max 2 MB | Upload middleware (e.g. multer `fileFilter` and `limits`) |
-| Character name required | Schema |
+| Image type JPG/PNG/WEBP, max 2 MB | Upload middleware (multer `fileFilter` and `limits`); also checked in the browser |
+| File is a real image | Cloudinary rejects non-images; the controller turns this into a `400` |
+| Character name required | Controller (blank names) + schema |
+| Abilities and techniques need names; max 20 each | Schema (also checked by the React form) |
+| Comment text 1–500 characters | Controller (blank text) + schema |
+| Profile edit changes only display name and bio | Controller |
 | Only owner can edit/delete a character | Controller |
 | Only author can delete a comment | Controller |
 | No duplicate likes/follows | Unique compound index |
 | No self-follow | Controller |
+
+Mongoose validation errors, duplicate keys, invalid ids, upload errors, and bad JSON are all turned into `400` responses with readable messages by the central error handler (`server/middleware/errorMiddleware.js`). Unexpected errors return `500` with a generic message; details are only logged on the server.
 
 ## 8. Future Changes (not in V1)
 
@@ -455,3 +488,17 @@ These are deliberately left out and can be added later without redesigning the e
 - **Extra profile fields:** e.g. `age`, `gender`, `species` on Character.
 - **Multiple images:** change `image` to `images: [{ url, publicId }]`.
 - **Stored like counts:** add a `likeCount` field if counting becomes slow.
+- **Like counts on cards:** Explore cards do not show likes yet; this would need counts for many characters at once (an aggregation or a stored counter).
+- **Account deletion:** would need cleanup of the user's characters (and their images, likes, comments), the user's own likes, comments, follows, and avatar.
+
+## 9. Implementation Files
+
+| Model | File |
+| --- | --- |
+| User | `server/models/User.js` |
+| Character (with Ability and Technique sub-schemas) | `server/models/Character.js` |
+| Like | `server/models/Like.js` |
+| Comment | `server/models/Comment.js` |
+| Follow | `server/models/Follow.js` |
+
+The endpoints that use these models are listed in the [API Reference](api-reference.md).
