@@ -6,15 +6,40 @@ Creators build structured character profiles (artwork, personality, abilities wi
 
 ## Features
 
-- **Accounts:** two-step sign-up (email and password, then username), login with a basic JWT
-- **Characters:** create, edit, and delete your own characters with one artwork image each
+### Accounts and profile
+
+- **Two-step sign-up:** email and password first (the email is checked right away), then choose a username
+- **Login** with a basic JWT; you stay logged in until the token expires
+- **Profile:** edit your display name, bio, and avatar
+
+### Characters
+
+- **Create, edit, and delete** your own characters
+- **Structured profile:** name, short description, personality, backstory, and one artwork image
 - **Abilities editor:** a list of abilities, each with its own named techniques
-- **Tags:** add up to 10 free-form tags to each character
-- **Explore:** browse all characters with name search, tag filters, sorting, and pagination
-- **Social:** like characters, comment on them, and follow creators
-- **Creator pages:** public profile with avatar, bio, counts, and tabs for the creator's characters, followers, and following
-- **Profile:** edit display name, bio, and avatar
-- **Theme:** muted "Charcoal & Plum" palette; follows the system light/dark setting; works on mobile and desktop
+- **Tags:** up to 10 free-form tags per character (e.g. `sky pirate`, `swordswoman`), in any language
+- **My Characters:** your own collection in one grid
+
+### Discover
+
+- **Explore** every character in a paginated grid
+- **Search** by character name
+- **Filter by tag:** click one of the 20 most-used tags, or any tag on a character page
+- **Sort** by newest, oldest, or name (A–Z)
+- **Character cards** show artwork, description, up to 3 tags, the creator, and the like count
+
+### Community
+
+- **Likes:** like or unlike any character; counts appear on cards and character pages
+- **Comments:** post comments on characters and delete your own
+- **Follow creators**
+- **Creator pages:** avatar, bio, and counts, with tabs for the creator's characters, followers, and following
+
+### Look and feel
+
+- Muted **"Charcoal & Plum"** theme with no bright or neon colors
+- Follows your system's **light or dark mode**
+- Works on **mobile and desktop**, with keyboard-friendly controls and labelled forms
 
 ## Tech stack
 
