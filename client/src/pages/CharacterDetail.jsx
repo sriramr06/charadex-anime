@@ -9,6 +9,8 @@ import { formatDate } from '../utils/formatDate'
 import CharacterImage from '../components/CharacterImage'
 import Avatar from '../components/Avatar'
 import StatusMessage from '../components/StatusMessage'
+import LikeButton from '../components/LikeButton'
+import CommentSection from '../components/CommentSection'
 import './CharacterDetail.css'
 
 function CharacterDetail() {
@@ -88,6 +90,14 @@ function CharacterDetail() {
                   {formatDate(character.createdAt)}
                 </span>
               </p>
+              <div className="detail-like">
+                <LikeButton
+                  key={character._id}
+                  characterId={character._id}
+                  initialLiked={data.likedByMe}
+                  initialCount={data.likeCount}
+                />
+              </div>
             </div>
 
             {isOwner && (
@@ -167,6 +177,8 @@ function CharacterDetail() {
                 : 'The creator has not added more details yet.'}
             </p>
           )}
+
+          <CommentSection key={character._id} characterId={character._id} />
         </div>
       </article>
     </div>

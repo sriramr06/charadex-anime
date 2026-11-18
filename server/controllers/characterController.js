@@ -1,4 +1,6 @@
 import Character from '../models/Character.js'
+import Like from '../models/Like.js'
+import Comment from '../models/Comment.js'
 import escapeRegex from '../utils/escapeRegex.js'
 import { uploadImage, deleteImage } from '../config/cloudinary.js'
 
@@ -84,7 +86,7 @@ export const getMyCharacters = async (req, res) => {
 }
 
 // @route   GET /api/characters/:id
-// @access  Public
+// @access  Public (optionalAuth: logged-in users also get likedByMe)
 export const getCharacterById = async (req, res) => {
   const character = await Character.findById(req.params.id).populate('creator', CREATOR_FIELDS)
 
@@ -92,7 +94,12 @@ export const getCharacterById = async (req, res) => {
     return res.status(404).json({ message: 'Character not found' })
   }
 
-  res.json({ character })
+  const [likeCount, myLike] = await Promise.all([
+    Like.countDocuments({ character: character._id }),
+    req.user ? Like.exists({ character: character._id, user: req.user._id }) : null,
+  ])
+
+  res.json({ character, likeCount, likedByMe: Boolean(myLike) })
 }
 
 // @route   POST /api/characters
@@ -142,7 +149,11 @@ export const deleteCharacter = async (req, res) => {
   // Remove the image from Cloudinary too (failures are only logged)
   await deleteImage(character.image?.publicId)
 
-  // TODO (likes/comments feature): also delete this character's likes and comments.
+  // Remove its likes and comments so nothing is left behind
+  await Promise.all([
+    Like.deleteMany({ character: character._id }),
+    Comment.deleteMany({ character: character._id }),
+  ])
 
   res.json({ message: 'Character deleted' })
 }

@@ -48,6 +48,10 @@
   font-size: var(--text-sm);
 }
 
+.detail-like {
+  margin-top: var(--space-3);
+}
+
 .detail-actions {
   display: flex;
   gap: var(--space-2);

@@ -1,0 +1,103 @@
+.comment-count {
+  font-weight: 400;
+}
+
+/* Your avatar on the left, the text box on the right */
+.comment-form {
+  display: flex;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+
+.comment-form-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.comment-form textarea {
+  width: 100%;
+  padding: 10px var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font: inherit;
+  color: var(--color-text);
+  background-color: var(--color-surface);
+  resize: vertical;
+}
+
+.comment-form textarea:focus {
+  border-color: var(--color-primary);
+}
+
+.comment-form .form-error {
+  margin: var(--space-2) 0 0;
+}
+
+.comment-form-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.comment-login,
+.comment-empty {
+  margin-bottom: var(--space-4);
+}
+
+.comment-empty {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.comment-list {
+  list-style: none;
+  margin: 0 0 var(--space-4);
+  padding: 0;
+}
+
+/* Same shape as the form: avatar left, content right */
+.comment {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4) 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.comment-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.comment-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-1);
+  font-size: var(--text-sm);
+}
+
+.comment-author {
+  font-weight: 600;
+}
+
+/* Keep line breaks; break very long words */
+.comment-text {
+  margin: 0;
+  max-width: 75ch;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.comment-delete {
+  width: 32px;
+  height: 32px;
+}
+
+.comment-delete svg {
+  width: 15px;
+  height: 15px;
+}

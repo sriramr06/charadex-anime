@@ -5,6 +5,7 @@ import connectDB from './config/db.js'
 import authRoutes from './routes/authRoutes.js'
 import characterRoutes from './routes/characterRoutes.js'
 import userRoutes from './routes/userRoutes.js'
+import commentRoutes from './routes/commentRoutes.js'
 import { notFound, errorHandler } from './middleware/errorMiddleware.js'
 
 const app = express()
@@ -21,6 +22,7 @@ app.get('/api/health', (req, res) => {
 app.use('/api/auth', authRoutes)
 app.use('/api/characters', characterRoutes)
 app.use('/api/users', userRoutes)
+app.use('/api/comments', commentRoutes)
 
 // Error handling (must come after all routes)
 app.use(notFound)
