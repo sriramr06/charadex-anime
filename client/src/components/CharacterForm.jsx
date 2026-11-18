@@ -222,7 +222,7 @@ function CharacterForm({ character, initialError = '' }) {
             />
           </section>
 
-          <div className="character-form-actions">
+          <div className="form-actions">
             <Link
               to={isEdit ? `/characters/${character._id}` : '/my-characters'}
               className="btn btn-outline"

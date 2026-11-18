@@ -60,24 +60,22 @@
   background-color: var(--color-surface-2);
 }
 
+/* Avatar + name, links to the profile page */
 .navbar-user {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
+  padding: var(--space-1) var(--space-2) var(--space-1) var(--space-1);
+  border-radius: 999px;
   font-size: var(--text-sm);
   color: var(--color-muted);
+  text-decoration: none;
 }
 
-.navbar-avatar {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
+.navbar-user:hover,
+.navbar-user.active {
+  color: var(--color-text);
   background-color: var(--color-surface-2);
-  color: var(--color-primary);
-  font-weight: 700;
 }
 
 /* Small screens: icons only (text stays available to screen readers) */

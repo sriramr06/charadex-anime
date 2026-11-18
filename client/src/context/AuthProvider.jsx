@@ -45,7 +45,12 @@ export function AuthProvider({ children }) {
     setUser(null)
   }
 
-  const value = { user, loading, login, register, logout }
+  // After editing the profile, replace the user so the navbar etc. update
+  const updateUser = (updatedUser) => {
+    setUser(updatedUser)
+  }
+
+  const value = { user, loading, login, register, logout, updateUser }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

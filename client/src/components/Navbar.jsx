@@ -1,6 +1,7 @@
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { FiCompass, FiGrid, FiPlus, FiLogOut, FiLogIn } from 'react-icons/fi'
 import { useAuth } from '../context/authContext'
+import Avatar from './Avatar'
 import './Navbar.css'
 
 // Top bar for all app pages.
@@ -47,12 +48,10 @@ function Navbar() {
                 <span className="nav-label">New character</span>
               </Link>
 
-              <span className="navbar-user" title={`@${user.username}`}>
-                <span className="navbar-avatar" aria-hidden="true">
-                  {name.charAt(0).toUpperCase()}
-                </span>
+              <NavLink to="/profile" className="navbar-user" title="Your profile">
+                <Avatar user={user} size="sm" />
                 <span className="nav-label">{name}</span>
-              </span>
+              </NavLink>
 
               <button
                 type="button"

@@ -1,10 +1,7 @@
 import { useEffect, useMemo, useRef } from 'react'
 import { FiUpload, FiTrash2 } from 'react-icons/fi'
 import CharacterImage from './CharacterImage'
-import './ImagePicker.css'
-
-const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp']
-const MAX_SIZE = 2 * 1024 * 1024 // 2 MB (same limit as the server)
+import { validateImage } from '../utils/validateImage'
 
 // Lets the user choose, preview, or remove the character image.
 // The parent form keeps track of the chosen file and does the actual upload.
@@ -34,12 +31,9 @@ function ImagePicker({ currentImage, file, removed, name, onChange, onError }) {
     e.target.value = '' // allow choosing the same file again later
     if (!chosen) return
 
-    if (!ALLOWED_TYPES.includes(chosen.type)) {
-      onError('Please choose a JPG, PNG, or WEBP image.')
-      return
-    }
-    if (chosen.size > MAX_SIZE) {
-      onError('Image must be 2 MB or smaller.')
+    const problem = validateImage(chosen)
+    if (problem) {
+      onError(problem)
       return
     }
 
@@ -63,7 +57,7 @@ function ImagePicker({ currentImage, file, removed, name, onChange, onError }) {
 
   return (
     <div className="image-picker">
-      <p className="image-picker-label">Artwork</p>
+      <p className="picker-label">Artwork</p>
 
       {/* Blob previews can't be resized by Cloudinary, so show them as-is */}
       {previewUrl ? (
@@ -80,7 +74,7 @@ function ImagePicker({ currentImage, file, removed, name, onChange, onError }) {
         hidden
       />
 
-      <div className="image-picker-actions">
+      <div className="picker-actions">
         <button
           type="button"
           className="btn btn-outline btn-icon"

@@ -1,16 +1,6 @@
 import User from '../models/User.js'
 import generateToken from '../utils/generateToken.js'
-
-// Only send safe fields back to the client (never the password)
-const userResponse = (user) => ({
-  _id: user._id,
-  username: user.username,
-  email: user.email,
-  displayName: user.displayName,
-  bio: user.bio,
-  avatar: user.avatar,
-  createdAt: user.createdAt,
-})
+import userResponse from '../utils/userResponse.js'
 
 // @route   POST /api/auth/register
 // @access  Public

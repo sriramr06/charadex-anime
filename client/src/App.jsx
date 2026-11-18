@@ -11,6 +11,7 @@ import MyCharacters from './pages/MyCharacters.jsx'
 import CharacterDetail from './pages/CharacterDetail.jsx'
 import CreateCharacter from './pages/CreateCharacter.jsx'
 import EditCharacter from './pages/EditCharacter.jsx'
+import Profile from './pages/Profile.jsx'
 import NotFound from './pages/NotFound.jsx'
 
 function App() {
@@ -41,6 +42,7 @@ function App() {
           <Route path="/my-characters" element={<MyCharacters />} />
           <Route path="/characters/new" element={<CreateCharacter />} />
           <Route path="/characters/:id/edit" element={<EditCharacter />} />
+          <Route path="/profile" element={<Profile />} />
         </Route>
       </Route>
 

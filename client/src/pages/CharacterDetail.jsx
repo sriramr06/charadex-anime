@@ -7,6 +7,7 @@ import { deleteCharacter } from '../api/characters'
 import { getErrorMessage } from '../api/axios'
 import { formatDate } from '../utils/formatDate'
 import CharacterImage from '../components/CharacterImage'
+import Avatar from '../components/Avatar'
 import StatusMessage from '../components/StatusMessage'
 import './CharacterDetail.css'
 
@@ -81,8 +82,11 @@ function CharacterDetail() {
             <div>
               <h1>{character.name}</h1>
               <p className="detail-meta muted">
-                by @{creator ? creator.username : 'unknown'} · Created{' '}
-                {formatDate(character.createdAt)}
+                <Avatar user={creator} size="sm" />
+                <span>
+                  by @{creator ? creator.username : 'unknown'} · Created{' '}
+                  {formatDate(character.createdAt)}
+                </span>
               </p>
             </div>
 
